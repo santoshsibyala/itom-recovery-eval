@@ -1,0 +1,75 @@
+{
+  "name": "route_failover",
+  "family": "traffic",
+  "initial": {
+    "route": {
+      "destination": "blue",
+      "tls": "strict"
+    },
+    "blue": {
+      "capacity": 2
+    },
+    "green": {
+      "capacity": 2
+    }
+  },
+  "effects": [
+    {
+      "id": "target-route",
+      "resource": "route",
+      "before": {
+        "destination": "blue"
+      },
+      "forward": {
+        "destination": "green"
+      },
+      "forward_version": 1
+    }
+  ],
+  "constraints": [
+    {
+      "implies": [
+        {
+          "eq": [
+            {
+              "ref": [
+                "route",
+                "destination"
+              ]
+            },
+            "blue"
+          ]
+        },
+        {
+          "ge": [
+            {
+              "ref": [
+                "blue",
+                "capacity"
+              ]
+            },
+            1
+          ]
+        }
+      ]
+    }
+  ],
+  "order": [],
+  "id": "route_failover--dependency_race",
+  "variant": "dependency_race",
+  "external": [
+    {
+      "resource": "blue",
+      "patch": {
+        "capacity": 0
+      },
+      "id": "operator-1",
+      "authorization": "approved-external-change"
+    }
+  ],
+  "history": "complete",
+  "timing": "before_write",
+  "failures": [],
+  "max_tools": 32,
+  "split": "structural-holdout-v03"
+}

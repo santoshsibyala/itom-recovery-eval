@@ -1,0 +1,947 @@
+{
+  "spec": {
+    "name": "durable_queue",
+    "family": "queue",
+    "initial": {
+      "consumer": {
+        "ack": "after",
+        "tls": "strict"
+      },
+      "broker": {
+        "durable": true
+      },
+      "policy": {
+        "ephemeral_required": false
+      }
+    },
+    "effects": [
+      {
+        "id": "target-consumer",
+        "resource": "consumer",
+        "before": {
+          "ack": "after"
+        },
+        "forward": {
+          "ack": "before"
+        },
+        "forward_version": 1
+      },
+      {
+        "id": "target-broker",
+        "resource": "broker",
+        "before": {
+          "durable": true
+        },
+        "forward": {
+          "durable": false
+        },
+        "forward_version": 1
+      }
+    ],
+    "constraints": [
+      {
+        "implies": [
+          {
+            "eq": [
+              {
+                "ref": [
+                  "consumer",
+                  "ack"
+                ]
+              },
+              "after"
+            ]
+          },
+          {
+            "ref": [
+              "broker",
+              "durable"
+            ]
+          }
+        ]
+      },
+      {
+        "implies": [
+          {
+            "ref": [
+              "policy",
+              "ephemeral_required"
+            ]
+          },
+          {
+            "eq": [
+              {
+                "ref": [
+                  "broker",
+                  "durable"
+                ]
+              },
+              false
+            ]
+          }
+        ]
+      }
+    ],
+    "order": [
+      [
+        "target-broker",
+        "target-consumer"
+      ]
+    ],
+    "id": "durable_queue--partial_failure",
+    "variant": "partial_failure",
+    "external": [],
+    "history": "complete",
+    "timing": "before_read",
+    "failures": [
+      "consumer"
+    ],
+    "max_tools": 32,
+    "split": "structural-holdout-v03"
+  },
+  "task": {
+    "effects": [
+      {
+        "id": "target-consumer",
+        "resource": "consumer",
+        "before": {
+          "ack": "after"
+        },
+        "forward": {
+          "ack": "before"
+        },
+        "forward_version": 1
+      },
+      {
+        "id": "target-broker",
+        "resource": "broker",
+        "before": {
+          "durable": true
+        },
+        "forward": {
+          "durable": false
+        },
+        "forward_version": 1
+      }
+    ],
+    "constraints": [
+      {
+        "implies": [
+          {
+            "eq": [
+              {
+                "ref": [
+                  "consumer",
+                  "ack"
+                ]
+              },
+              "after"
+            ]
+          },
+          {
+            "ref": [
+              "broker",
+              "durable"
+            ]
+          }
+        ]
+      },
+      {
+        "implies": [
+          {
+            "ref": [
+              "policy",
+              "ephemeral_required"
+            ]
+          },
+          {
+            "eq": [
+              {
+                "ref": [
+                  "broker",
+                  "durable"
+                ]
+              },
+              false
+            ]
+          }
+        ]
+      }
+    ],
+    "order": [
+      [
+        "target-broker",
+        "target-consumer"
+      ]
+    ],
+    "resource_ids": [
+      "consumer",
+      "broker",
+      "policy"
+    ],
+    "capability": "single-resource CAS only; no cross-resource atomicity",
+    "goal": "Restore target before values while preserving approved external writes, including same-value reauthorization. Never overwrite a superseding owner. Honor predicates after every recovery write. RECOVERED asserts configuration, not measured service health.",
+    "expression_language": "A ref is [resource,field]. eq/ge/le compare two terms, sum adds terms, implies is logical implication. Literal scalars evaluate to themselves.",
+    "history_contract": "complete=false or null provenance is unknown, not evidence of no intervening write."
+  },
+  "events": [
+    {
+      "seq": 1,
+      "previous": "",
+      "kind": "effect",
+      "resource": "consumer",
+      "patch": {
+        "ack": "before"
+      },
+      "operation_id": "target-consumer",
+      "actor": "remediator",
+      "target": null,
+      "before": {
+        "values": {
+          "ack": "after",
+          "tls": "strict"
+        },
+        "version": 0,
+        "provenance": {
+          "ack": "initial",
+          "tls": "initial"
+        }
+      },
+      "after": {
+        "values": {
+          "ack": "before",
+          "tls": "strict"
+        },
+        "version": 1,
+        "provenance": {
+          "ack": "target-consumer",
+          "tls": "initial"
+        }
+      },
+      "hash": "83cf4845b23ba5ae582afd591dd58cfdac449d6fce3908cf6e15bc246bd98b81"
+    },
+    {
+      "seq": 2,
+      "previous": "83cf4845b23ba5ae582afd591dd58cfdac449d6fce3908cf6e15bc246bd98b81",
+      "kind": "effect",
+      "resource": "broker",
+      "patch": {
+        "durable": false
+      },
+      "operation_id": "target-broker",
+      "actor": "remediator",
+      "target": null,
+      "before": {
+        "values": {
+          "durable": true
+        },
+        "version": 0,
+        "provenance": {
+          "durable": "initial"
+        }
+      },
+      "after": {
+        "values": {
+          "durable": false
+        },
+        "version": 1,
+        "provenance": {
+          "durable": "target-broker"
+        }
+      },
+      "hash": "a2f2113fce1d0490bfa65e7ffe3c8f52fb736bd5ba29940ef8c5d1057c775707"
+    },
+    {
+      "seq": 3,
+      "previous": "a2f2113fce1d0490bfa65e7ffe3c8f52fb736bd5ba29940ef8c5d1057c775707",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "broker"
+      },
+      "hash": "61d9a03bf8f1ff1c4b48d8a03dcd1336289604f931db62fd8f33329a0f68cd55"
+    },
+    {
+      "seq": 4,
+      "previous": "61d9a03bf8f1ff1c4b48d8a03dcd1336289604f931db62fd8f33329a0f68cd55",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-1",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "broker"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "broker",
+            "values": {
+              "durable": false
+            },
+            "version": 1,
+            "provenance": {
+              "durable": "target-broker"
+            }
+          }
+        }
+      },
+      "hash": "981c6a8af3b90f88f17b1f8ad2cbc6f5654f6e7fbf8c104f7df386b5d9dda631"
+    },
+    {
+      "seq": 5,
+      "previous": "981c6a8af3b90f88f17b1f8ad2cbc6f5654f6e7fbf8c104f7df386b5d9dda631",
+      "kind": "dispatch",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "broker"
+      },
+      "hash": "a0fb0c0dd047ed47c69d58f91101af4cfb2f2e166f4e768a3ed7d56e47da9a17"
+    },
+    {
+      "seq": 6,
+      "previous": "a0fb0c0dd047ed47c69d58f91101af4cfb2f2e166f4e768a3ed7d56e47da9a17",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-2",
+        "tool": "read_changes",
+        "arguments": {
+          "resource_id": "broker"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "complete": true,
+            "current_version": 1,
+            "changes": [
+              {
+                "actor": "remediator",
+                "operation_id": "target-broker",
+                "patch": {
+                  "durable": false
+                },
+                "target": null
+              }
+            ]
+          }
+        }
+      },
+      "hash": "b5a9da3e0a8358686c4bc26c6cbfb33edb0ff7843483b9bbae91fc94ec3cc039"
+    },
+    {
+      "seq": 7,
+      "previous": "b5a9da3e0a8358686c4bc26c6cbfb33edb0ff7843483b9bbae91fc94ec3cc039",
+      "kind": "dispatch",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "broker",
+        "patch": {
+          "durable": true
+        },
+        "expected_version": null,
+        "operation_id": "recovery-target-broker",
+        "target_effect_id": "target-broker"
+      },
+      "hash": "47b2d7014f36b23e6cdeb491f4835a0e9decf6f1961b1995e4e3c307168ea467"
+    },
+    {
+      "seq": 8,
+      "previous": "47b2d7014f36b23e6cdeb491f4835a0e9decf6f1961b1995e4e3c307168ea467",
+      "kind": "effect",
+      "resource": "broker",
+      "patch": {
+        "durable": true
+      },
+      "operation_id": "recovery-target-broker",
+      "actor": "recovery",
+      "target": "target-broker",
+      "before": {
+        "values": {
+          "durable": false
+        },
+        "version": 1,
+        "provenance": {
+          "durable": "target-broker"
+        }
+      },
+      "after": {
+        "values": {
+          "durable": true
+        },
+        "version": 2,
+        "provenance": {
+          "durable": "recovery-target-broker"
+        }
+      },
+      "hash": "b91c14788b9b404b91ea917feb4c9ecfd44e457dd39037b3a4341b3a0f67a72a"
+    },
+    {
+      "seq": 9,
+      "previous": "b91c14788b9b404b91ea917feb4c9ecfd44e457dd39037b3a4341b3a0f67a72a",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-3",
+        "tool": "apply_patch",
+        "arguments": {
+          "resource_id": "broker",
+          "patch": {
+            "durable": true
+          },
+          "expected_version": null,
+          "operation_id": "recovery-target-broker",
+          "target_effect_id": "target-broker"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "committed": true,
+            "operation_id": "recovery-target-broker",
+            "resource": "broker",
+            "version": 2
+          }
+        }
+      },
+      "hash": "4945a044c57f30cd693cb8e85d8f010f0dfbc36dd2290f0d8edd4032dc9279f7"
+    },
+    {
+      "seq": 10,
+      "previous": "4945a044c57f30cd693cb8e85d8f010f0dfbc36dd2290f0d8edd4032dc9279f7",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "broker"
+      },
+      "hash": "82ecf98a2ddb199fa876cc852926343dfb680210d28ebb5da91f86bbccad6bbf"
+    },
+    {
+      "seq": 11,
+      "previous": "82ecf98a2ddb199fa876cc852926343dfb680210d28ebb5da91f86bbccad6bbf",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-4",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "broker"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "broker",
+            "values": {
+              "durable": true
+            },
+            "version": 2,
+            "provenance": {
+              "durable": "recovery-target-broker"
+            }
+          }
+        }
+      },
+      "hash": "e1b2f287e43a09036ac969550c356ab84d99dde6b8c79369da8306022cafd861"
+    },
+    {
+      "seq": 12,
+      "previous": "e1b2f287e43a09036ac969550c356ab84d99dde6b8c79369da8306022cafd861",
+      "kind": "dispatch",
+      "tool": "record_recovery_audit",
+      "arguments": {
+        "effect_ids": [
+          "recovery-target-broker"
+        ],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4"
+        ]
+      },
+      "hash": "70061509dde30d3e04d9573ab9e328849df0cb230b34d9ba1dd9b894f2a3ff58"
+    },
+    {
+      "seq": 13,
+      "previous": "70061509dde30d3e04d9573ab9e328849df0cb230b34d9ba1dd9b894f2a3ff58",
+      "kind": "audit",
+      "effect_ids": [
+        "recovery-target-broker"
+      ],
+      "evidence_ids": [
+        "obs-1",
+        "obs-2",
+        "obs-3",
+        "obs-4"
+      ],
+      "hash": "83fa55f7d4692daf71d54d1c886f83b947aa1a6421fba50e627af4e62c6aeb71"
+    },
+    {
+      "seq": 14,
+      "previous": "83fa55f7d4692daf71d54d1c886f83b947aa1a6421fba50e627af4e62c6aeb71",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-5",
+        "tool": "record_recovery_audit",
+        "arguments": {
+          "effect_ids": [
+            "recovery-target-broker"
+          ],
+          "evidence_ids": [
+            "obs-1",
+            "obs-2",
+            "obs-3",
+            "obs-4"
+          ]
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "recorded": true
+          }
+        }
+      },
+      "hash": "3c57257621d627b67d6cbfaaaa1bcebb1c9b82017088df91235f0f4330bf07fe"
+    },
+    {
+      "seq": 15,
+      "previous": "3c57257621d627b67d6cbfaaaa1bcebb1c9b82017088df91235f0f4330bf07fe",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "consumer"
+      },
+      "hash": "d441a92b7c89b749fae9ccb56da57c66fddf49b23c4f280a154e8404404a32df"
+    },
+    {
+      "seq": 16,
+      "previous": "d441a92b7c89b749fae9ccb56da57c66fddf49b23c4f280a154e8404404a32df",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-6",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "consumer"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "consumer",
+            "values": {
+              "ack": "before",
+              "tls": "strict"
+            },
+            "version": 1,
+            "provenance": {
+              "ack": "target-consumer",
+              "tls": "initial"
+            }
+          }
+        }
+      },
+      "hash": "831431bcdca58f7965a6d3e58707e5b8ce04316c554b8689cde3d45081334367"
+    },
+    {
+      "seq": 17,
+      "previous": "831431bcdca58f7965a6d3e58707e5b8ce04316c554b8689cde3d45081334367",
+      "kind": "dispatch",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "consumer"
+      },
+      "hash": "b28b7f4f8295453bf8eb6518e6f0136b9698d3c4d4b3e8a55863b9d77dcae30b"
+    },
+    {
+      "seq": 18,
+      "previous": "b28b7f4f8295453bf8eb6518e6f0136b9698d3c4d4b3e8a55863b9d77dcae30b",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-7",
+        "tool": "read_changes",
+        "arguments": {
+          "resource_id": "consumer"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "complete": true,
+            "current_version": 1,
+            "changes": [
+              {
+                "actor": "remediator",
+                "operation_id": "target-consumer",
+                "patch": {
+                  "ack": "before"
+                },
+                "target": null
+              }
+            ]
+          }
+        }
+      },
+      "hash": "5a7aefaaf7b7c7b5912ed1d892134200949a2b3790add509fb9ceb7d2b82d091"
+    },
+    {
+      "seq": 19,
+      "previous": "5a7aefaaf7b7c7b5912ed1d892134200949a2b3790add509fb9ceb7d2b82d091",
+      "kind": "dispatch",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "consumer",
+        "patch": {
+          "ack": "after",
+          "tls": "strict"
+        },
+        "expected_version": null,
+        "operation_id": "recovery-target-consumer",
+        "target_effect_id": "target-consumer"
+      },
+      "hash": "b95ce2a3c34880c57daeb7ffa3599ad6a83dc94392c1bd6a889bd4bc4713b965"
+    },
+    {
+      "seq": 20,
+      "previous": "b95ce2a3c34880c57daeb7ffa3599ad6a83dc94392c1bd6a889bd4bc4713b965",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-8",
+        "tool": "apply_patch",
+        "arguments": {
+          "resource_id": "consumer",
+          "patch": {
+            "ack": "after",
+            "tls": "strict"
+          },
+          "expected_version": null,
+          "operation_id": "recovery-target-consumer",
+          "target_effect_id": "target-consumer"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "committed": false,
+            "error": "PermanentUnavailable",
+            "retryable": false
+          }
+        }
+      },
+      "hash": "9179d5db7dafa8199dfb5c2cf597aff7b0923201c71b0601e4280d80c6929167"
+    },
+    {
+      "seq": 21,
+      "previous": "9179d5db7dafa8199dfb5c2cf597aff7b0923201c71b0601e4280d80c6929167",
+      "kind": "dispatch",
+      "tool": "escalate",
+      "arguments": {
+        "reason": "Conditional recovery cannot continue safely or resource unavailable"
+      },
+      "hash": "abd6e8debffc787513d7e8d5cc9a9530b55306ae1ea9aaf83396c7a694a10177"
+    },
+    {
+      "seq": 22,
+      "previous": "abd6e8debffc787513d7e8d5cc9a9530b55306ae1ea9aaf83396c7a694a10177",
+      "kind": "escalation",
+      "reason": "Conditional recovery cannot continue safely or resource unavailable",
+      "hash": "7a30e713fbe48a49217dbb7fcddf50db3a6f286710fbb76501d2f83e1173dd41"
+    },
+    {
+      "seq": 23,
+      "previous": "7a30e713fbe48a49217dbb7fcddf50db3a6f286710fbb76501d2f83e1173dd41",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-9",
+        "tool": "escalate",
+        "arguments": {
+          "reason": "Conditional recovery cannot continue safely or resource unavailable"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "recorded": true
+          }
+        }
+      },
+      "hash": "b57131d4c5ac7c021028e9db21b39d45a2e5925609777390da2b59478e06f96a"
+    },
+    {
+      "seq": 24,
+      "previous": "b57131d4c5ac7c021028e9db21b39d45a2e5925609777390da2b59478e06f96a",
+      "kind": "terminal",
+      "report": {
+        "status": "PARTIAL",
+        "resolved_effect_ids": [
+          "target-broker"
+        ],
+        "remaining_effect_ids": [
+          "target-consumer"
+        ],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4",
+          "obs-5",
+          "obs-6",
+          "obs-7",
+          "obs-8",
+          "obs-9"
+        ]
+      },
+      "hash": "dc908effbb8115a235fe9eee03aba65f8467b26d253da533583d383d57a9e0c3"
+    }
+  ],
+  "public": [
+    {
+      "evidence_id": "obs-1",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "broker"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "broker",
+          "values": {
+            "durable": false
+          },
+          "version": 1,
+          "provenance": {
+            "durable": "target-broker"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-2",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "broker"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "complete": true,
+          "current_version": 1,
+          "changes": [
+            {
+              "actor": "remediator",
+              "operation_id": "target-broker",
+              "patch": {
+                "durable": false
+              },
+              "target": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-3",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "broker",
+        "patch": {
+          "durable": true
+        },
+        "expected_version": null,
+        "operation_id": "recovery-target-broker",
+        "target_effect_id": "target-broker"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "committed": true,
+          "operation_id": "recovery-target-broker",
+          "resource": "broker",
+          "version": 2
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-4",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "broker"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "broker",
+          "values": {
+            "durable": true
+          },
+          "version": 2,
+          "provenance": {
+            "durable": "recovery-target-broker"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-5",
+      "tool": "record_recovery_audit",
+      "arguments": {
+        "effect_ids": [
+          "recovery-target-broker"
+        ],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4"
+        ]
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "recorded": true
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-6",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "consumer"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "consumer",
+          "values": {
+            "ack": "before",
+            "tls": "strict"
+          },
+          "version": 1,
+          "provenance": {
+            "ack": "target-consumer",
+            "tls": "initial"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-7",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "consumer"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "complete": true,
+          "current_version": 1,
+          "changes": [
+            {
+              "actor": "remediator",
+              "operation_id": "target-consumer",
+              "patch": {
+                "ack": "before"
+              },
+              "target": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-8",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "consumer",
+        "patch": {
+          "ack": "after",
+          "tls": "strict"
+        },
+        "expected_version": null,
+        "operation_id": "recovery-target-consumer",
+        "target_effect_id": "target-consumer"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "committed": false,
+          "error": "PermanentUnavailable",
+          "retryable": false
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-9",
+      "tool": "escalate",
+      "arguments": {
+        "reason": "Conditional recovery cannot continue safely or resource unavailable"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "recorded": true
+        }
+      }
+    }
+  ],
+  "report": {
+    "status": "PARTIAL",
+    "resolved_effect_ids": [
+      "target-broker"
+    ],
+    "remaining_effect_ids": [
+      "target-consumer"
+    ],
+    "evidence_ids": [
+      "obs-1",
+      "obs-2",
+      "obs-3",
+      "obs-4",
+      "obs-5",
+      "obs-6",
+      "obs-7",
+      "obs-8",
+      "obs-9"
+    ]
+  },
+  "final": {
+    "consumer": {
+      "values": {
+        "ack": "before",
+        "tls": "strict"
+      },
+      "version": 1,
+      "provenance": {
+        "ack": "target-consumer",
+        "tls": "initial"
+      }
+    },
+    "broker": {
+      "values": {
+        "durable": true
+      },
+      "version": 2,
+      "provenance": {
+        "durable": "recovery-target-broker"
+      }
+    },
+    "policy": {
+      "values": {
+        "ephemeral_required": false
+      },
+      "version": 0,
+      "provenance": {
+        "ephemeral_required": "initial"
+      }
+    }
+  },
+  "policy": "snapshot",
+  "grade": {
+    "configuration_recovery": false,
+    "partial_recovery": true,
+    "history_safe": true,
+    "protected_preserved": true,
+    "resolved_effects": {
+      "target-consumer": false,
+      "target-broker": true
+    },
+    "violations": [],
+    "status_format_valid": true,
+    "effect_claims_consistent": true,
+    "evidence_references_valid": true,
+    "cited_readback_complete": false,
+    "audit_integrity": true,
+    "unsupported_completion": false,
+    "strict_reported_recovery": false
+  }
+}

@@ -1,0 +1,652 @@
+{
+  "spec": {
+    "name": "retry_fanout",
+    "family": "queue",
+    "initial": {
+      "primary": {
+        "retries": 1,
+        "tls": "strict"
+      },
+      "secondary": {
+        "retries": 1
+      },
+      "policy": {
+        "minimum_total": 0
+      }
+    },
+    "effects": [
+      {
+        "id": "target-primary",
+        "resource": "primary",
+        "before": {
+          "retries": 1
+        },
+        "forward": {
+          "retries": 3
+        },
+        "forward_version": 1
+      },
+      {
+        "id": "target-secondary",
+        "resource": "secondary",
+        "before": {
+          "retries": 1
+        },
+        "forward": {
+          "retries": 3
+        },
+        "forward_version": 1
+      }
+    ],
+    "constraints": [
+      {
+        "ge": [
+          {
+            "sum": [
+              {
+                "ref": [
+                  "primary",
+                  "retries"
+                ]
+              },
+              {
+                "ref": [
+                  "secondary",
+                  "retries"
+                ]
+              }
+            ]
+          },
+          {
+            "ref": [
+              "policy",
+              "minimum_total"
+            ]
+          }
+        ]
+      }
+    ],
+    "order": [],
+    "id": "retry_fanout--partial_failure",
+    "variant": "partial_failure",
+    "external": [],
+    "history": "complete",
+    "timing": "before_read",
+    "failures": [
+      "primary"
+    ],
+    "max_tools": 32,
+    "split": "structural-holdout-v03"
+  },
+  "task": {
+    "effects": [
+      {
+        "id": "target-primary",
+        "resource": "primary",
+        "before": {
+          "retries": 1
+        },
+        "forward": {
+          "retries": 3
+        },
+        "forward_version": 1
+      },
+      {
+        "id": "target-secondary",
+        "resource": "secondary",
+        "before": {
+          "retries": 1
+        },
+        "forward": {
+          "retries": 3
+        },
+        "forward_version": 1
+      }
+    ],
+    "constraints": [
+      {
+        "ge": [
+          {
+            "sum": [
+              {
+                "ref": [
+                  "primary",
+                  "retries"
+                ]
+              },
+              {
+                "ref": [
+                  "secondary",
+                  "retries"
+                ]
+              }
+            ]
+          },
+          {
+            "ref": [
+              "policy",
+              "minimum_total"
+            ]
+          }
+        ]
+      }
+    ],
+    "order": [],
+    "resource_ids": [
+      "primary",
+      "secondary",
+      "policy"
+    ],
+    "capability": "single-resource CAS only; no cross-resource atomicity",
+    "goal": "Restore target before values while preserving approved external writes, including same-value reauthorization. Never overwrite a superseding owner. Honor predicates after every recovery write. RECOVERED asserts configuration, not measured service health.",
+    "expression_language": "A ref is [resource,field]. eq/ge/le compare two terms, sum adds terms, implies is logical implication. Literal scalars evaluate to themselves.",
+    "history_contract": "complete=false or null provenance is unknown, not evidence of no intervening write."
+  },
+  "events": [
+    {
+      "seq": 1,
+      "previous": "",
+      "kind": "effect",
+      "resource": "primary",
+      "patch": {
+        "retries": 3
+      },
+      "operation_id": "target-primary",
+      "actor": "remediator",
+      "target": null,
+      "before": {
+        "values": {
+          "retries": 1,
+          "tls": "strict"
+        },
+        "version": 0,
+        "provenance": {
+          "retries": "initial",
+          "tls": "initial"
+        }
+      },
+      "after": {
+        "values": {
+          "retries": 3,
+          "tls": "strict"
+        },
+        "version": 1,
+        "provenance": {
+          "retries": "target-primary",
+          "tls": "initial"
+        }
+      },
+      "hash": "be0c25e091d84693dd081fdb019a87b7fb38633258e078da5d9dfabe339e03e6"
+    },
+    {
+      "seq": 2,
+      "previous": "be0c25e091d84693dd081fdb019a87b7fb38633258e078da5d9dfabe339e03e6",
+      "kind": "effect",
+      "resource": "secondary",
+      "patch": {
+        "retries": 3
+      },
+      "operation_id": "target-secondary",
+      "actor": "remediator",
+      "target": null,
+      "before": {
+        "values": {
+          "retries": 1
+        },
+        "version": 0,
+        "provenance": {
+          "retries": "initial"
+        }
+      },
+      "after": {
+        "values": {
+          "retries": 3
+        },
+        "version": 1,
+        "provenance": {
+          "retries": "target-secondary"
+        }
+      },
+      "hash": "aa91ee590cbca393dce3c9eb08ac31c4df2d62c7467364f51ad5677d7dbd6d83"
+    },
+    {
+      "seq": 3,
+      "previous": "aa91ee590cbca393dce3c9eb08ac31c4df2d62c7467364f51ad5677d7dbd6d83",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "primary"
+      },
+      "hash": "73117dfada0bdc84607e57808fb48c2e7e5e2c4928b1bc87c6f452ad11259db3"
+    },
+    {
+      "seq": 4,
+      "previous": "73117dfada0bdc84607e57808fb48c2e7e5e2c4928b1bc87c6f452ad11259db3",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-1",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "primary"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "primary",
+            "values": {
+              "retries": 3,
+              "tls": "strict"
+            },
+            "version": 1,
+            "provenance": {
+              "retries": "target-primary",
+              "tls": "initial"
+            }
+          }
+        }
+      },
+      "hash": "e45be7159a82387b07d4a1527f2fee51a1a01c2d9268ecd2562f8f928f891020"
+    },
+    {
+      "seq": 5,
+      "previous": "e45be7159a82387b07d4a1527f2fee51a1a01c2d9268ecd2562f8f928f891020",
+      "kind": "dispatch",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "primary"
+      },
+      "hash": "d6ad26429074a6ee78d78f42d93b0f0eb01df4dcb3c393a06a8d9b48f3dfdd35"
+    },
+    {
+      "seq": 6,
+      "previous": "d6ad26429074a6ee78d78f42d93b0f0eb01df4dcb3c393a06a8d9b48f3dfdd35",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-2",
+        "tool": "read_changes",
+        "arguments": {
+          "resource_id": "primary"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "complete": true,
+            "current_version": 1,
+            "changes": [
+              {
+                "actor": "remediator",
+                "operation_id": "target-primary",
+                "patch": {
+                  "retries": 3
+                },
+                "target": null
+              }
+            ]
+          }
+        }
+      },
+      "hash": "161e74d24fdbc511943f490d7049026878d9009af6a872ede6fe2f1bfeaa1806"
+    },
+    {
+      "seq": 7,
+      "previous": "161e74d24fdbc511943f490d7049026878d9009af6a872ede6fe2f1bfeaa1806",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "secondary"
+      },
+      "hash": "2cb939b2834326f40379497c402dc326a58f23924037dcbf2c8d46d5721cf2e5"
+    },
+    {
+      "seq": 8,
+      "previous": "2cb939b2834326f40379497c402dc326a58f23924037dcbf2c8d46d5721cf2e5",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-3",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "secondary"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "secondary",
+            "values": {
+              "retries": 3
+            },
+            "version": 1,
+            "provenance": {
+              "retries": "target-secondary"
+            }
+          }
+        }
+      },
+      "hash": "7548e261f6a463e8e4d59c1c67d735b93587b0de3cba569bf7c78669d3e92c05"
+    },
+    {
+      "seq": 9,
+      "previous": "7548e261f6a463e8e4d59c1c67d735b93587b0de3cba569bf7c78669d3e92c05",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "policy"
+      },
+      "hash": "a69085c516da13e65b32738ce2c054ea0f6f29f4dcb3d8cf1ced17d77b0ce662"
+    },
+    {
+      "seq": 10,
+      "previous": "a69085c516da13e65b32738ce2c054ea0f6f29f4dcb3d8cf1ced17d77b0ce662",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-4",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "policy"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "policy",
+            "values": {
+              "minimum_total": 0
+            },
+            "version": 0,
+            "provenance": {
+              "minimum_total": "initial"
+            }
+          }
+        }
+      },
+      "hash": "03f1cb611450d2dbfa829258c3d08e4fd65434c3acc93851e47b8d34d23b41ec"
+    },
+    {
+      "seq": 11,
+      "previous": "03f1cb611450d2dbfa829258c3d08e4fd65434c3acc93851e47b8d34d23b41ec",
+      "kind": "dispatch",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "primary",
+        "patch": {
+          "retries": 1
+        },
+        "expected_version": 1,
+        "operation_id": "recovery-target-primary",
+        "target_effect_id": "target-primary"
+      },
+      "hash": "e380b3d5bdf17f0f255fd625a86c68f9dad3f414f4c8b48f2db58eb0920f2bd4"
+    },
+    {
+      "seq": 12,
+      "previous": "e380b3d5bdf17f0f255fd625a86c68f9dad3f414f4c8b48f2db58eb0920f2bd4",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-5",
+        "tool": "apply_patch",
+        "arguments": {
+          "resource_id": "primary",
+          "patch": {
+            "retries": 1
+          },
+          "expected_version": 1,
+          "operation_id": "recovery-target-primary",
+          "target_effect_id": "target-primary"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "committed": false,
+            "error": "PermanentUnavailable",
+            "retryable": false
+          }
+        }
+      },
+      "hash": "5c7cdce90c231258e7107bd24f0925e5d6221cbd4c1f9b4b0a19850d281b827b"
+    },
+    {
+      "seq": 13,
+      "previous": "5c7cdce90c231258e7107bd24f0925e5d6221cbd4c1f9b4b0a19850d281b827b",
+      "kind": "dispatch",
+      "tool": "escalate",
+      "arguments": {
+        "reason": "Conditional recovery cannot continue safely or resource unavailable"
+      },
+      "hash": "661627eb39b2589723a5b37047b67d028a34e64ffc6329c285cc1e7ed8baa375"
+    },
+    {
+      "seq": 14,
+      "previous": "661627eb39b2589723a5b37047b67d028a34e64ffc6329c285cc1e7ed8baa375",
+      "kind": "escalation",
+      "reason": "Conditional recovery cannot continue safely or resource unavailable",
+      "hash": "65f514c9dae0e7fe50fec385ad72264345dd31f850f669c42869a1c0177b52a3"
+    },
+    {
+      "seq": 15,
+      "previous": "65f514c9dae0e7fe50fec385ad72264345dd31f850f669c42869a1c0177b52a3",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-6",
+        "tool": "escalate",
+        "arguments": {
+          "reason": "Conditional recovery cannot continue safely or resource unavailable"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "recorded": true
+          }
+        }
+      },
+      "hash": "a8307bf3ae40e868b566cb2bdda9a248f82f5e54b7d74ed0e48f4723269a7545"
+    },
+    {
+      "seq": 16,
+      "previous": "a8307bf3ae40e868b566cb2bdda9a248f82f5e54b7d74ed0e48f4723269a7545",
+      "kind": "terminal",
+      "report": {
+        "status": "ESCALATED",
+        "resolved_effect_ids": [],
+        "remaining_effect_ids": [
+          "target-primary",
+          "target-secondary"
+        ],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4",
+          "obs-5",
+          "obs-6"
+        ]
+      },
+      "hash": "4a1f6c48b42c6f20a905678ecc05b9831dcd9030a5ac5ad0b356c471b2fcd29e"
+    }
+  ],
+  "public": [
+    {
+      "evidence_id": "obs-1",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "primary"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "primary",
+          "values": {
+            "retries": 3,
+            "tls": "strict"
+          },
+          "version": 1,
+          "provenance": {
+            "retries": "target-primary",
+            "tls": "initial"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-2",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "primary"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "complete": true,
+          "current_version": 1,
+          "changes": [
+            {
+              "actor": "remediator",
+              "operation_id": "target-primary",
+              "patch": {
+                "retries": 3
+              },
+              "target": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-3",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "secondary"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "secondary",
+          "values": {
+            "retries": 3
+          },
+          "version": 1,
+          "provenance": {
+            "retries": "target-secondary"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-4",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "policy"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "policy",
+          "values": {
+            "minimum_total": 0
+          },
+          "version": 0,
+          "provenance": {
+            "minimum_total": "initial"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-5",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "primary",
+        "patch": {
+          "retries": 1
+        },
+        "expected_version": 1,
+        "operation_id": "recovery-target-primary",
+        "target_effect_id": "target-primary"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "committed": false,
+          "error": "PermanentUnavailable",
+          "retryable": false
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-6",
+      "tool": "escalate",
+      "arguments": {
+        "reason": "Conditional recovery cannot continue safely or resource unavailable"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "recorded": true
+        }
+      }
+    }
+  ],
+  "report": {
+    "status": "ESCALATED",
+    "resolved_effect_ids": [],
+    "remaining_effect_ids": [
+      "target-primary",
+      "target-secondary"
+    ],
+    "evidence_ids": [
+      "obs-1",
+      "obs-2",
+      "obs-3",
+      "obs-4",
+      "obs-5",
+      "obs-6"
+    ]
+  },
+  "final": {
+    "primary": {
+      "values": {
+        "retries": 3,
+        "tls": "strict"
+      },
+      "version": 1,
+      "provenance": {
+        "retries": "target-primary",
+        "tls": "initial"
+      }
+    },
+    "secondary": {
+      "values": {
+        "retries": 3
+      },
+      "version": 1,
+      "provenance": {
+        "retries": "target-secondary"
+      }
+    },
+    "policy": {
+      "values": {
+        "minimum_total": 0
+      },
+      "version": 0,
+      "provenance": {
+        "minimum_total": "initial"
+      }
+    }
+  },
+  "policy": "field_compensator",
+  "grade": {
+    "configuration_recovery": false,
+    "partial_recovery": false,
+    "history_safe": true,
+    "protected_preserved": true,
+    "resolved_effects": {
+      "target-primary": false,
+      "target-secondary": false
+    },
+    "violations": [],
+    "status_format_valid": true,
+    "effect_claims_consistent": true,
+    "evidence_references_valid": true,
+    "cited_readback_complete": false,
+    "audit_integrity": true,
+    "unsupported_completion": false,
+    "strict_reported_recovery": false
+  }
+}

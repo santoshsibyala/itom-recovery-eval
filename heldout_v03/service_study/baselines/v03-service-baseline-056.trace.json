@@ -1,0 +1,1479 @@
+{
+  "spec": {
+    "name": "route_failover",
+    "family": "traffic",
+    "initial": {
+      "route": {
+        "destination": "blue",
+        "tls": "strict"
+      },
+      "blue": {
+        "capacity": 2
+      },
+      "green": {
+        "capacity": 2
+      }
+    },
+    "effects": [
+      {
+        "id": "target-route",
+        "resource": "route",
+        "before": {
+          "destination": "blue"
+        },
+        "forward": {
+          "destination": "green"
+        },
+        "forward_version": 1
+      }
+    ],
+    "constraints": [
+      {
+        "implies": [
+          {
+            "eq": [
+              {
+                "ref": [
+                  "route",
+                  "destination"
+                ]
+              },
+              "blue"
+            ]
+          },
+          {
+            "ge": [
+              {
+                "ref": [
+                  "blue",
+                  "capacity"
+                ]
+              },
+              1
+            ]
+          }
+        ]
+      }
+    ],
+    "order": [],
+    "id": "route_failover--clean",
+    "variant": "clean",
+    "external": [],
+    "history": "complete",
+    "timing": "before_read",
+    "failures": [],
+    "max_tools": 32,
+    "split": "structural-holdout-v03"
+  },
+  "task": {
+    "effects": [
+      {
+        "id": "target-route",
+        "resource": "route",
+        "before": {
+          "destination": "blue"
+        },
+        "forward": {
+          "destination": "green"
+        },
+        "forward_version": 1
+      }
+    ],
+    "constraints": [
+      {
+        "implies": [
+          {
+            "eq": [
+              {
+                "ref": [
+                  "route",
+                  "destination"
+                ]
+              },
+              "blue"
+            ]
+          },
+          {
+            "ge": [
+              {
+                "ref": [
+                  "blue",
+                  "capacity"
+                ]
+              },
+              1
+            ]
+          }
+        ]
+      }
+    ],
+    "order": [],
+    "resource_ids": [
+      "route",
+      "blue",
+      "green"
+    ],
+    "capability": "single-resource CAS only; no cross-resource atomicity",
+    "goal": "Restore target before values while preserving approved external writes, including same-value reauthorization. Never overwrite a superseding owner. Honor predicates after every recovery write. RECOVERED asserts configuration, not measured service health.",
+    "expression_language": "A ref is [resource,field]. eq/ge/le compare two terms, sum adds terms, implies is logical implication. Literal scalars evaluate to themselves.",
+    "history_contract": "complete=false or null provenance is unknown, not evidence of no intervening write."
+  },
+  "events": [
+    {
+      "seq": 1,
+      "previous": "",
+      "kind": "effect",
+      "resource": "route",
+      "patch": {
+        "destination": "green"
+      },
+      "operation_id": "target-route",
+      "actor": "remediator",
+      "target": null,
+      "before": {
+        "values": {
+          "destination": "blue",
+          "tls": "strict"
+        },
+        "version": 0,
+        "provenance": {
+          "destination": "initial",
+          "tls": "initial"
+        }
+      },
+      "after": {
+        "values": {
+          "destination": "green",
+          "tls": "strict"
+        },
+        "version": 1,
+        "provenance": {
+          "destination": "target-route",
+          "tls": "initial"
+        }
+      },
+      "hash": "115514351fb2b185bdbf5d9ec916ed383f2886b99bc0740d8555d373aa837adf"
+    },
+    {
+      "seq": 2,
+      "previous": "115514351fb2b185bdbf5d9ec916ed383f2886b99bc0740d8555d373aa837adf",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "route"
+      },
+      "hash": "033dd5a3d01d591cf6b855a4025bad5147219534dec569fa74e7de5b17fcd853"
+    },
+    {
+      "seq": 3,
+      "previous": "033dd5a3d01d591cf6b855a4025bad5147219534dec569fa74e7de5b17fcd853",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-1",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "route"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "route",
+            "values": {
+              "destination": "green",
+              "tls": "strict"
+            },
+            "version": 1,
+            "provenance": {
+              "destination": "target-route",
+              "tls": "initial"
+            }
+          }
+        }
+      },
+      "hash": "58a52e9f9be95e474a1dfa4105667fa9bf3eae23841ff85033dcde01826c6043"
+    },
+    {
+      "seq": 4,
+      "previous": "58a52e9f9be95e474a1dfa4105667fa9bf3eae23841ff85033dcde01826c6043",
+      "kind": "dispatch",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "route"
+      },
+      "hash": "f76175d1ca6663eab7598ab74afd76448b7450bfa4ca6a195362e2150b947d37"
+    },
+    {
+      "seq": 5,
+      "previous": "f76175d1ca6663eab7598ab74afd76448b7450bfa4ca6a195362e2150b947d37",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-2",
+        "tool": "read_changes",
+        "arguments": {
+          "resource_id": "route"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "complete": true,
+            "current_version": 1,
+            "changes": [
+              {
+                "actor": "remediator",
+                "operation_id": "target-route",
+                "patch": {
+                  "destination": "green"
+                },
+                "target": null
+              }
+            ]
+          }
+        }
+      },
+      "hash": "11fa49a51431f55fcf86c3dc3990189260a43a069d9e5f16382c9f8ae314be9e"
+    },
+    {
+      "seq": 6,
+      "previous": "11fa49a51431f55fcf86c3dc3990189260a43a069d9e5f16382c9f8ae314be9e",
+      "kind": "dispatch",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "route",
+        "patch": {
+          "destination": "blue",
+          "tls": "strict"
+        },
+        "expected_version": null,
+        "operation_id": "recovery-target-route",
+        "target_effect_id": "target-route"
+      },
+      "hash": "567506149ae57376e62c7ebbd1c3a2a058e1069d7ef319a20ae022f1964d48aa"
+    },
+    {
+      "seq": 7,
+      "previous": "567506149ae57376e62c7ebbd1c3a2a058e1069d7ef319a20ae022f1964d48aa",
+      "kind": "effect",
+      "resource": "route",
+      "patch": {
+        "destination": "blue",
+        "tls": "strict"
+      },
+      "operation_id": "recovery-target-route",
+      "actor": "recovery",
+      "target": "target-route",
+      "before": {
+        "values": {
+          "destination": "green",
+          "tls": "strict"
+        },
+        "version": 1,
+        "provenance": {
+          "destination": "target-route",
+          "tls": "initial"
+        }
+      },
+      "after": {
+        "values": {
+          "destination": "blue",
+          "tls": "strict"
+        },
+        "version": 2,
+        "provenance": {
+          "destination": "recovery-target-route",
+          "tls": "recovery-target-route"
+        }
+      },
+      "hash": "02667df2837bfb9ad8d32442a1b13c120cffe721424ec067b382ca8d5d6a7657"
+    },
+    {
+      "seq": 8,
+      "previous": "02667df2837bfb9ad8d32442a1b13c120cffe721424ec067b382ca8d5d6a7657",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-3",
+        "tool": "apply_patch",
+        "arguments": {
+          "resource_id": "route",
+          "patch": {
+            "destination": "blue",
+            "tls": "strict"
+          },
+          "expected_version": null,
+          "operation_id": "recovery-target-route",
+          "target_effect_id": "target-route"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "committed": true,
+            "operation_id": "recovery-target-route",
+            "resource": "route",
+            "version": 2
+          }
+        }
+      },
+      "hash": "5c28d26ab73364d7dbb47fdf61e6672bcf9167ca7b908eb948243fdb9d973bad"
+    },
+    {
+      "seq": 9,
+      "previous": "5c28d26ab73364d7dbb47fdf61e6672bcf9167ca7b908eb948243fdb9d973bad",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "route"
+      },
+      "hash": "d1186f831a169c647749ec3f994ae9c80a7c85915ef40222bbb7688268209a78"
+    },
+    {
+      "seq": 10,
+      "previous": "d1186f831a169c647749ec3f994ae9c80a7c85915ef40222bbb7688268209a78",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-4",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "route"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "route",
+            "values": {
+              "destination": "blue",
+              "tls": "strict"
+            },
+            "version": 2,
+            "provenance": {
+              "destination": "recovery-target-route",
+              "tls": "recovery-target-route"
+            }
+          }
+        }
+      },
+      "hash": "bcbe7ae4daf94f84c265c11d38e547888b6304fc23e4d90761ea5ea99ed2cb8d"
+    },
+    {
+      "seq": 11,
+      "previous": "bcbe7ae4daf94f84c265c11d38e547888b6304fc23e4d90761ea5ea99ed2cb8d",
+      "kind": "dispatch",
+      "tool": "record_recovery_audit",
+      "arguments": {
+        "effect_ids": [
+          "recovery-target-route"
+        ],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4"
+        ]
+      },
+      "hash": "70e5183bb787d9c5741f8fd3d8c84e206275e6f7d39836c28c19a90d8dde43ca"
+    },
+    {
+      "seq": 12,
+      "previous": "70e5183bb787d9c5741f8fd3d8c84e206275e6f7d39836c28c19a90d8dde43ca",
+      "kind": "audit",
+      "effect_ids": [
+        "recovery-target-route"
+      ],
+      "evidence_ids": [
+        "obs-1",
+        "obs-2",
+        "obs-3",
+        "obs-4"
+      ],
+      "hash": "85f57a8838b19dee0915d573e37350c19acb62061dee16a83a5fef4bd7ea5a43"
+    },
+    {
+      "seq": 13,
+      "previous": "85f57a8838b19dee0915d573e37350c19acb62061dee16a83a5fef4bd7ea5a43",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-5",
+        "tool": "record_recovery_audit",
+        "arguments": {
+          "effect_ids": [
+            "recovery-target-route"
+          ],
+          "evidence_ids": [
+            "obs-1",
+            "obs-2",
+            "obs-3",
+            "obs-4"
+          ]
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "recorded": true
+          }
+        }
+      },
+      "hash": "32a57c99258e90d9a1957f9fd3b15f8b547b10c721572b21128bf47922c31896"
+    },
+    {
+      "seq": 14,
+      "previous": "32a57c99258e90d9a1957f9fd3b15f8b547b10c721572b21128bf47922c31896",
+      "kind": "terminal",
+      "report": {
+        "status": "RECOVERED",
+        "resolved_effect_ids": [
+          "target-route"
+        ],
+        "remaining_effect_ids": [],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4",
+          "obs-5"
+        ]
+      },
+      "hash": "4fa1a905951794ef39b02de87e424ef10de191ec6109a127c67ffada2117722e"
+    }
+  ],
+  "public": [
+    {
+      "evidence_id": "obs-1",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "route"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "route",
+          "values": {
+            "destination": "green",
+            "tls": "strict"
+          },
+          "version": 1,
+          "provenance": {
+            "destination": "target-route",
+            "tls": "initial"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-2",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "route"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "complete": true,
+          "current_version": 1,
+          "changes": [
+            {
+              "actor": "remediator",
+              "operation_id": "target-route",
+              "patch": {
+                "destination": "green"
+              },
+              "target": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-3",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "route",
+        "patch": {
+          "destination": "blue",
+          "tls": "strict"
+        },
+        "expected_version": null,
+        "operation_id": "recovery-target-route",
+        "target_effect_id": "target-route"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "committed": true,
+          "operation_id": "recovery-target-route",
+          "resource": "route",
+          "version": 2
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-4",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "route"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "route",
+          "values": {
+            "destination": "blue",
+            "tls": "strict"
+          },
+          "version": 2,
+          "provenance": {
+            "destination": "recovery-target-route",
+            "tls": "recovery-target-route"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-5",
+      "tool": "record_recovery_audit",
+      "arguments": {
+        "effect_ids": [
+          "recovery-target-route"
+        ],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4"
+        ]
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "recorded": true
+        }
+      }
+    }
+  ],
+  "report": {
+    "status": "RECOVERED",
+    "resolved_effect_ids": [
+      "target-route"
+    ],
+    "remaining_effect_ids": [],
+    "evidence_ids": [
+      "obs-1",
+      "obs-2",
+      "obs-3",
+      "obs-4",
+      "obs-5"
+    ]
+  },
+  "final": {
+    "route": {
+      "values": {
+        "destination": "blue",
+        "tls": "strict"
+      },
+      "version": 2,
+      "provenance": {
+        "destination": "recovery-target-route",
+        "tls": "recovery-target-route"
+      }
+    },
+    "blue": {
+      "values": {
+        "capacity": 2
+      },
+      "version": 0,
+      "provenance": {
+        "capacity": "initial"
+      }
+    },
+    "green": {
+      "values": {
+        "capacity": 2
+      },
+      "version": 0,
+      "provenance": {
+        "capacity": "initial"
+      }
+    }
+  },
+  "service": {
+    "processes": [
+      {
+        "port": 49847,
+        "pid": 28432,
+        "role": "backend"
+      },
+      {
+        "port": 49856,
+        "pid": 28437,
+        "role": "backend"
+      },
+      {
+        "port": 49870,
+        "pid": 28439,
+        "role": "proxy"
+      }
+    ],
+    "operator": null,
+    "requests": [
+      {
+        "request_id": 1,
+        "label": "before",
+        "payload": "itom-1",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.5614579897373915,
+        "backend_pid": 28437,
+        "error": null
+      },
+      {
+        "request_id": 2,
+        "label": "before",
+        "payload": "itom-2",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.9025000035762787,
+        "backend_pid": 28437,
+        "error": null
+      },
+      {
+        "request_id": 3,
+        "label": "before",
+        "payload": "itom-3",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.9637088514864445,
+        "backend_pid": 28437,
+        "error": null
+      },
+      {
+        "request_id": 4,
+        "label": "before",
+        "payload": "itom-4",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.8281248155981302,
+        "backend_pid": 28437,
+        "error": null
+      },
+      {
+        "request_id": 5,
+        "label": "before",
+        "payload": "itom-5",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.771332997828722,
+        "backend_pid": 28437,
+        "error": null
+      },
+      {
+        "request_id": 6,
+        "label": "after-write",
+        "payload": "itom-6",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.7509160786867142,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 7,
+        "label": "after-write",
+        "payload": "itom-7",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.7221249397844076,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 8,
+        "label": "after-write",
+        "payload": "itom-8",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.1276670265942812,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 9,
+        "label": "terminal-1",
+        "payload": "itom-9",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.6570830009877682,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 10,
+        "label": "terminal-1",
+        "payload": "itom-10",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.8358340710401535,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 11,
+        "label": "terminal-1",
+        "payload": "itom-11",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.8401251398026943,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 12,
+        "label": "terminal-1",
+        "payload": "itom-12",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.7018749602138996,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 13,
+        "label": "terminal-1",
+        "payload": "itom-13",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.7641250267624855,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 14,
+        "label": "terminal-1",
+        "payload": "itom-14",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.9350408799946308,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 15,
+        "label": "terminal-1",
+        "payload": "itom-15",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.0249160695821047,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 16,
+        "label": "terminal-1",
+        "payload": "itom-16",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.9660420473664999,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 17,
+        "label": "terminal-1",
+        "payload": "itom-17",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.926540931686759,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 18,
+        "label": "terminal-1",
+        "payload": "itom-18",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.7000830955803394,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 19,
+        "label": "terminal-1",
+        "payload": "itom-19",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.7957920897752047,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 20,
+        "label": "terminal-1",
+        "payload": "itom-20",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.9309998713433743,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 21,
+        "label": "terminal-1",
+        "payload": "itom-21",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.753625063225627,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 22,
+        "label": "terminal-1",
+        "payload": "itom-22",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.8449170272797346,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 23,
+        "label": "terminal-1",
+        "payload": "itom-23",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.7745830807834864,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 24,
+        "label": "terminal-1",
+        "payload": "itom-24",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.7948328275233507,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 25,
+        "label": "terminal-1",
+        "payload": "itom-25",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.8472090121358633,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 26,
+        "label": "terminal-1",
+        "payload": "itom-26",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.1565838940441608,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 27,
+        "label": "terminal-1",
+        "payload": "itom-27",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.9219590574502945,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 28,
+        "label": "terminal-1",
+        "payload": "itom-28",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.0182501282542944,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 29,
+        "label": "terminal-2",
+        "payload": "itom-29",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.2163750361651182,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 30,
+        "label": "terminal-2",
+        "payload": "itom-30",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.75941688939929,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 31,
+        "label": "terminal-2",
+        "payload": "itom-31",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.2568749953061342,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 32,
+        "label": "terminal-2",
+        "payload": "itom-32",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.5345418360084295,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 33,
+        "label": "terminal-2",
+        "payload": "itom-33",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.9592080023139715,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 34,
+        "label": "terminal-2",
+        "payload": "itom-34",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.0186661966145039,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 35,
+        "label": "terminal-2",
+        "payload": "itom-35",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 0.8927918970584869,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 36,
+        "label": "terminal-2",
+        "payload": "itom-36",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.2868328485637903,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 37,
+        "label": "terminal-2",
+        "payload": "itom-37",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.3366250786930323,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 38,
+        "label": "terminal-2",
+        "payload": "itom-38",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.6691251657903194,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 39,
+        "label": "terminal-2",
+        "payload": "itom-39",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.710209159180522,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 40,
+        "label": "terminal-2",
+        "payload": "itom-40",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.0442501194775105,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 41,
+        "label": "terminal-2",
+        "payload": "itom-41",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.3609590716660023,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 42,
+        "label": "terminal-2",
+        "payload": "itom-42",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.4217081479728222,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 43,
+        "label": "terminal-2",
+        "payload": "itom-43",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.1917918715626,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 44,
+        "label": "terminal-2",
+        "payload": "itom-44",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.7707080114632845,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 45,
+        "label": "terminal-2",
+        "payload": "itom-45",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.946417149156332,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 46,
+        "label": "terminal-2",
+        "payload": "itom-46",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.767332898452878,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 47,
+        "label": "terminal-2",
+        "payload": "itom-47",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.731625059619546,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 48,
+        "label": "terminal-2",
+        "payload": "itom-48",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.4933750499039888,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 49,
+        "label": "terminal-3",
+        "payload": "itom-49",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.4744158834218979,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 50,
+        "label": "terminal-3",
+        "payload": "itom-50",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.3074581511318684,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 51,
+        "label": "terminal-3",
+        "payload": "itom-51",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.2167091481387615,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 52,
+        "label": "terminal-3",
+        "payload": "itom-52",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.812333008274436,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 53,
+        "label": "terminal-3",
+        "payload": "itom-53",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.7288329545408487,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 54,
+        "label": "terminal-3",
+        "payload": "itom-54",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.56708387658,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 55,
+        "label": "terminal-3",
+        "payload": "itom-55",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.480082981288433,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 56,
+        "label": "terminal-3",
+        "payload": "itom-56",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.8191251438111067,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 57,
+        "label": "terminal-3",
+        "payload": "itom-57",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.9411661196500063,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 58,
+        "label": "terminal-3",
+        "payload": "itom-58",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.3231250923126936,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 59,
+        "label": "terminal-3",
+        "payload": "itom-59",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.307083060964942,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 60,
+        "label": "terminal-3",
+        "payload": "itom-60",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.348957885056734,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 61,
+        "label": "terminal-3",
+        "payload": "itom-61",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.5177498571574688,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 62,
+        "label": "terminal-3",
+        "payload": "itom-62",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.9758751150220633,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 63,
+        "label": "terminal-3",
+        "payload": "itom-63",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.120750093832612,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 64,
+        "label": "terminal-3",
+        "payload": "itom-64",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.2377500534057617,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 65,
+        "label": "terminal-3",
+        "payload": "itom-65",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.1249999515712261,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 66,
+        "label": "terminal-3",
+        "payload": "itom-66",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.1467079166322947,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 67,
+        "label": "terminal-3",
+        "payload": "itom-67",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.2619169428944588,
+        "backend_pid": 28432,
+        "error": null
+      },
+      {
+        "request_id": 68,
+        "label": "terminal-3",
+        "payload": "itom-68",
+        "returned_checksum": "corrupt",
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.1465412098914385,
+        "backend_pid": 28432,
+        "error": null
+      }
+    ],
+    "terminal_windows": [
+      {
+        "requests": 20,
+        "correct": 0,
+        "p95_ms": 1.0249160695821047
+      },
+      {
+        "requests": 20,
+        "correct": 0,
+        "p95_ms": 4.0442501194775105
+      },
+      {
+        "requests": 20,
+        "correct": 0,
+        "p95_ms": 1.9411661196500063
+      }
+    ],
+    "health_pass": false,
+    "pre_correct": 0,
+    "implementation": "Shared configuration engine; separate proxy/backend OS processes and independently checked HTTP response digests. read_health tool remains synthetic; measured service health is out-of-band and not shown to agents."
+  },
+  "cell": {
+    "id": "v03-service-baseline-056",
+    "case": {
+      "name": "lingering_fault",
+      "spec": {
+        "name": "route_failover",
+        "family": "traffic",
+        "initial": {
+          "route": {
+            "destination": "blue",
+            "tls": "strict"
+          },
+          "blue": {
+            "capacity": 2
+          },
+          "green": {
+            "capacity": 2
+          }
+        },
+        "effects": [
+          {
+            "id": "target-route",
+            "resource": "route",
+            "before": {
+              "destination": "blue"
+            },
+            "forward": {
+              "destination": "green"
+            },
+            "forward_version": 1
+          }
+        ],
+        "constraints": [
+          {
+            "implies": [
+              {
+                "eq": [
+                  {
+                    "ref": [
+                      "route",
+                      "destination"
+                    ]
+                  },
+                  "blue"
+                ]
+              },
+              {
+                "ge": [
+                  {
+                    "ref": [
+                      "blue",
+                      "capacity"
+                    ]
+                  },
+                  1
+                ]
+              }
+            ]
+          }
+        ],
+        "order": [],
+        "id": "route_failover--clean",
+        "variant": "clean",
+        "external": [],
+        "history": "complete",
+        "timing": "before_read",
+        "failures": [],
+        "max_tools": 32,
+        "split": "structural-holdout-v03"
+      },
+      "lingering": true
+    },
+    "policy": "snapshot",
+    "replicate": 2
+  },
+  "grade": {
+    "configuration_recovery": true,
+    "partial_recovery": false,
+    "history_safe": true,
+    "protected_preserved": true,
+    "resolved_effects": {
+      "target-route": true
+    },
+    "violations": [],
+    "status_format_valid": true,
+    "effect_claims_consistent": true,
+    "evidence_references_valid": true,
+    "cited_readback_complete": true,
+    "audit_integrity": true,
+    "unsupported_completion": false,
+    "strict_reported_recovery": true
+  },
+  "error": null,
+  "operational_recovery": false
+}

@@ -1,0 +1,3587 @@
+{
+  "spec": {
+    "name": "quorum_writer",
+    "variant": "lingering_fault",
+    "replicate": 1,
+    "initial": {
+      "writer": {
+        "copies": 2,
+        "tag": "original"
+      },
+      "ack": {
+        "required": 2,
+        "tag": "original"
+      },
+      "pool": {
+        "available": 2
+      }
+    },
+    "effects": [
+      {
+        "id": "target-ack",
+        "resource": "ack",
+        "before": {
+          "required": 2
+        },
+        "forward": {
+          "required": 1
+        }
+      },
+      {
+        "id": "target-writer",
+        "resource": "writer",
+        "before": {
+          "copies": 2
+        },
+        "forward": {
+          "copies": 1
+        }
+      }
+    ],
+    "order": [
+      [
+        "target-writer",
+        "target-ack"
+      ]
+    ],
+    "predicates": [
+      [
+        "le",
+        "ack.required",
+        "writer.copies"
+      ],
+      [
+        "le",
+        "writer.copies",
+        "pool.available"
+      ]
+    ],
+    "external": [],
+    "timing": "initial",
+    "hidden": false,
+    "failures": [],
+    "delay_ms": 0,
+    "lingering": true
+  },
+  "task": {
+    "effects": [
+      {
+        "id": "target-ack",
+        "resource": "ack",
+        "before": {
+          "required": 2
+        },
+        "forward": {
+          "required": 1
+        }
+      },
+      {
+        "id": "target-writer",
+        "resource": "writer",
+        "before": {
+          "copies": 2
+        },
+        "forward": {
+          "copies": 1
+        }
+      }
+    ],
+    "order": [
+      [
+        "target-writer",
+        "target-ack"
+      ]
+    ],
+    "predicates": [
+      [
+        "le",
+        "ack.required",
+        "writer.copies"
+      ],
+      [
+        "le",
+        "writer.copies",
+        "pool.available"
+      ]
+    ],
+    "resource_ids": [
+      "writer",
+      "ack",
+      "pool"
+    ],
+    "guard": "atomic",
+    "goal": "Restore all target before values without overwriting external ownership, out-of-scope changes, order violations, or false predicates. RECOVERED asserts safe configuration, not health. OPERATIONAL asserts both.",
+    "evidence": "After all writes, read_resource and read_changes for * (all resources), then read_health. Cite all three observations and audit each committed operation with those observations. All complete histories, owners, matching versions, and a common terminal epoch are required for acceptance. Unknown history cannot certify recovery."
+  },
+  "guard": "atomic",
+  "events": [
+    {
+      "actor": "remediator",
+      "after": {
+        "owners": {
+          "required": "target-ack",
+          "tag": "initial"
+        },
+        "values": {
+          "required": 1,
+          "tag": "original"
+        },
+        "version": 1
+      },
+      "before": {
+        "owners": {
+          "required": "initial",
+          "tag": "initial"
+        },
+        "values": {
+          "required": 2,
+          "tag": "original"
+        },
+        "version": 0
+      },
+      "hash": "501a2802a2d547a19a85dbf66587d28be1766614547b9bcbd293fbda09bfbe7e",
+      "operation_id": "target-ack",
+      "patch": {
+        "required": 1
+      },
+      "previous": "",
+      "resource": "ack",
+      "seq": 1,
+      "target": "target-ack"
+    },
+    {
+      "actor": "remediator",
+      "after": {
+        "owners": {
+          "copies": "target-writer",
+          "tag": "initial"
+        },
+        "values": {
+          "copies": 1,
+          "tag": "original"
+        },
+        "version": 1
+      },
+      "before": {
+        "owners": {
+          "copies": "initial",
+          "tag": "initial"
+        },
+        "values": {
+          "copies": 2,
+          "tag": "original"
+        },
+        "version": 0
+      },
+      "hash": "fca322a4fe4c6b378b7d0ebd1215d82a0a275c9673d60ec28686a342299bdc8a",
+      "operation_id": "target-writer",
+      "patch": {
+        "copies": 1
+      },
+      "previous": "501a2802a2d547a19a85dbf66587d28be1766614547b9bcbd293fbda09bfbe7e",
+      "resource": "writer",
+      "seq": 2,
+      "target": "target-writer"
+    }
+  ],
+  "public": [
+    {
+      "evidence_id": "obs-1",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 2,
+          "resources": {
+            "writer": {
+              "owners": {
+                "copies": "target-writer",
+                "tag": "initial"
+              },
+              "values": {
+                "copies": 1,
+                "tag": "original"
+              },
+              "version": 1
+            },
+            "ack": {
+              "owners": {
+                "required": "target-ack",
+                "tag": "initial"
+              },
+              "values": {
+                "required": 1,
+                "tag": "original"
+              },
+              "version": 1
+            },
+            "pool": {
+              "owners": {
+                "available": "initial"
+              },
+              "values": {
+                "available": 2
+              },
+              "version": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-2",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 2,
+          "resources": {
+            "writer": {
+              "complete": true,
+              "version": 1,
+              "changes": [
+                {
+                  "operation_id": "target-writer",
+                  "actor": "remediator",
+                  "patch": {
+                    "copies": 1
+                  }
+                }
+              ]
+            },
+            "ack": {
+              "complete": true,
+              "version": 1,
+              "changes": [
+                {
+                  "operation_id": "target-ack",
+                  "actor": "remediator",
+                  "patch": {
+                    "required": 1
+                  }
+                }
+              ]
+            },
+            "pool": {
+              "complete": true,
+              "version": 0,
+              "changes": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-3",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 2,
+          "resources": {
+            "writer": {
+              "owners": {
+                "copies": "target-writer",
+                "tag": "initial"
+              },
+              "values": {
+                "copies": 1,
+                "tag": "original"
+              },
+              "version": 1
+            },
+            "ack": {
+              "owners": {
+                "required": "target-ack",
+                "tag": "initial"
+              },
+              "values": {
+                "required": 1,
+                "tag": "original"
+              },
+              "version": 1
+            },
+            "pool": {
+              "owners": {
+                "available": "initial"
+              },
+              "values": {
+                "available": 2
+              },
+              "version": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-4",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 2,
+          "resources": {
+            "writer": {
+              "complete": true,
+              "version": 1,
+              "changes": [
+                {
+                  "operation_id": "target-writer",
+                  "actor": "remediator",
+                  "patch": {
+                    "copies": 1
+                  }
+                }
+              ]
+            },
+            "ack": {
+              "complete": true,
+              "version": 1,
+              "changes": [
+                {
+                  "operation_id": "target-ack",
+                  "actor": "remediator",
+                  "patch": {
+                    "required": 1
+                  }
+                }
+              ]
+            },
+            "pool": {
+              "complete": true,
+              "version": 0,
+              "changes": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-5",
+      "tool": "read_health",
+      "arguments": {},
+      "reply": {
+        "ok": true,
+        "result": {
+          "measured": true,
+          "epoch": 2,
+          "stable_epoch": true,
+          "requests": 20,
+          "correct": 0,
+          "pass_window": false
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "before_epoch": 2,
+      "after_epoch": 2
+    },
+    {
+      "before_epoch": 2,
+      "after_epoch": 2
+    },
+    {
+      "before_epoch": 2,
+      "after_epoch": 2
+    },
+    {
+      "before_epoch": 2,
+      "after_epoch": 2
+    },
+    {
+      "before_epoch": 2,
+      "after_epoch": 2
+    }
+  ],
+  "report": {
+    "status": "UNRESOLVED",
+    "resolved_effect_ids": [],
+    "remaining_effect_ids": [
+      "target-ack",
+      "target-writer"
+    ],
+    "evidence_ids": [
+      "obs-3",
+      "obs-4",
+      "obs-5"
+    ]
+  },
+  "final": {
+    "writer": {
+      "owners": {
+        "copies": "target-writer",
+        "tag": "initial"
+      },
+      "values": {
+        "copies": 1,
+        "tag": "original"
+      },
+      "version": 1
+    },
+    "ack": {
+      "owners": {
+        "required": "target-ack",
+        "tag": "initial"
+      },
+      "values": {
+        "required": 1,
+        "tag": "original"
+      },
+      "version": 1
+    },
+    "pool": {
+      "owners": {
+        "available": "initial"
+      },
+      "values": {
+        "available": 2
+      },
+      "version": 0
+    }
+  },
+  "service": {
+    "processes": [
+      {
+        "port": 57878,
+        "pid": 35662,
+        "role": "store"
+      },
+      {
+        "port": 57908,
+        "pid": 35664,
+        "role": "store"
+      },
+      {
+        "port": 57909,
+        "pid": 35665,
+        "role": "gateway"
+      }
+    ],
+    "operators": [],
+    "requests": [
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-1",
+          "value": 1007
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 28.51437497884035
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-2",
+          "value": 1014
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.3682081159204245
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-3",
+          "value": 1021
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.357583122327924
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-4",
+          "value": 1028
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.737791838124394
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-5",
+          "value": 1035
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.249291028827429
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-6",
+          "value": 1042
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 5.780332954600453
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-7",
+          "value": 1049
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 5.092249950394034
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-8",
+          "value": 1056
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.513292133808136
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-9",
+          "value": 1063
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.552416063845158
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-10",
+          "value": 1070
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 6.875708932057023
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-11",
+          "value": 1077
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 6.937416968867183
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-12",
+          "value": 1084
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 5.419290857389569
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-13",
+          "value": 1091
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 6.588249932974577
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-14",
+          "value": 1098
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.575541036203504
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-15",
+          "value": 1105
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 8.270291145890951
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-16",
+          "value": 1112
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 5.23941614665091
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-17",
+          "value": 1119
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.92741703055799
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-18",
+          "value": 1126
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.925459157675505
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-19",
+          "value": 1133
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 5.510417046025395
+      },
+      {
+        "label": "public",
+        "payload": {
+          "id": "request-20",
+          "value": 1140
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 5.870957858860493
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-21",
+          "value": 1147
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.83329107798636
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-22",
+          "value": 1154
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.705667030066252
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-23",
+          "value": 1161
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 5.661958130076528
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-24",
+          "value": 1168
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.800959050655365
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-25",
+          "value": 1175
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 12.438708916306496
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-26",
+          "value": 1182
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 9.880166035145521
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-27",
+          "value": 1189
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.652624975889921
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-28",
+          "value": 1196
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 12.027208926156163
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-29",
+          "value": 1203
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 13.129916973412037
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-30",
+          "value": 1210
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.157457992434502
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-31",
+          "value": 1217
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 5.58520806953311
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-32",
+          "value": 1224
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.0281249936670065
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-33",
+          "value": 1231
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 8.488165913149714
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-34",
+          "value": 1238
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 19.29129217751324
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-35",
+          "value": 1245
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 10.864833137020469
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-36",
+          "value": 1252
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 10.280208894982934
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-37",
+          "value": 1259
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 8.061792002990842
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-38",
+          "value": 1266
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 8.508665952831507
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-39",
+          "value": 1273
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 8.49879183806479
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-40",
+          "value": 1280
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 8.0099580809474
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-41",
+          "value": 1287
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 8.242750074714422
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-42",
+          "value": 1294
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 8.587458869442344
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-43",
+          "value": 1301
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.948082871735096
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-44",
+          "value": 1308
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 8.966583060100675
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-45",
+          "value": 1315
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 8.720790967345238
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-46",
+          "value": 1322
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 8.600416127592325
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-47",
+          "value": 1329
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.8277080319821835
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-48",
+          "value": 1336
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.521500112488866
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-49",
+          "value": 1343
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.444750051945448
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-50",
+          "value": 1350
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.3746670968830585
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-51",
+          "value": 1357
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.83208291977644
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-52",
+          "value": 1364
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.390208076685667
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-53",
+          "value": 1371
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.822124985978007
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-54",
+          "value": 1378
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.016249932348728
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-55",
+          "value": 1385
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 6.812084000557661
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-56",
+          "value": 1392
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 7.08945794031024
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-57",
+          "value": 1399
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 6.774541921913624
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-58",
+          "value": 1406
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 6.537041859701276
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-59",
+          "value": 1413
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 6.797541165724397
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-60",
+          "value": 1420
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 6.9757080636918545
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-61",
+          "value": 1427
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 6.630458869040012
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-62",
+          "value": 1434
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 6.225042045116425
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-63",
+          "value": 1441
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 6.131165893748403
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-64",
+          "value": 1448
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 5.8849588967859745
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-65",
+          "value": 1455
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 5.978083936497569
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-66",
+          "value": 1462
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 6.821833085268736
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-67",
+          "value": 1469
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 5.08362497203052
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-68",
+          "value": 1476
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.346458008512855
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-69",
+          "value": 1483
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.394999938085675
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-70",
+          "value": 1490
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.570499993860722
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-71",
+          "value": 1497
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.878707928583026
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-72",
+          "value": 1504
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.9455839432775974
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-73",
+          "value": 1511
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.696917090564966
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-74",
+          "value": 1518
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.7214590702205896
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-75",
+          "value": 1525
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.7046249490231276
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-76",
+          "value": 1532
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.672124817967415
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-77",
+          "value": 1539
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.656540997326374
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-78",
+          "value": 1546
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.6623331252485514
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-79",
+          "value": 1553
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.605084028095007
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-80",
+          "value": 1560
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.779083024710417
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-81",
+          "value": 1567
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.8263339083641768
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-82",
+          "value": 1574
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.395958036184311
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-83",
+          "value": 1581
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.892167005687952
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-84",
+          "value": 1588
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.8495000917464495
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-85",
+          "value": 1595
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.8635421078652143
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-86",
+          "value": 1602
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.8341248873621225
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-87",
+          "value": 1609
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.7847089115530252
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-88",
+          "value": 1616
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.75987496227026
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-89",
+          "value": 1623
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.8842500653117895
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-90",
+          "value": 1630
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.7570418789982796
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-91",
+          "value": 1637
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.5972921177744865
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-92",
+          "value": 1644
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.632292151451111
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-93",
+          "value": 1651
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.5280839074403048
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-94",
+          "value": 1658
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.55933397077024
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-95",
+          "value": 1665
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.608040977269411
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-96",
+          "value": 1672
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.587207989767194
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-97",
+          "value": 1679
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.4622501116245985
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-98",
+          "value": 1686
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.346625017002225
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-99",
+          "value": 1693
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.527750028297305
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-100",
+          "value": 1700
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.547084052115679
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-101",
+          "value": 1707
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.847041167318821
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-102",
+          "value": 1714
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.9471669588238
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-103",
+          "value": 1721
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.558250144124031
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-104",
+          "value": 1728
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.8164579309523106
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-105",
+          "value": 1735
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.7780001293867826
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-106",
+          "value": 1742
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.6352500319480896
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-107",
+          "value": 1749
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.3604998607188463
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-108",
+          "value": 1756
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.3990410156548023
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-109",
+          "value": 1763
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.2977499067783356
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-110",
+          "value": 1770
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.335332963615656
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-111",
+          "value": 1777
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.9698750004172325
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-112",
+          "value": 1784
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.835499821230769
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-113",
+          "value": 1791
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.7271248400211334
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-114",
+          "value": 1798
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.8745420277118683
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-115",
+          "value": 1805
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.6346659287810326
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-116",
+          "value": 1812
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.6522499974817038
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-117",
+          "value": 1819
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.6459170039743185
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-118",
+          "value": 1826
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.654291922226548
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-119",
+          "value": 1833
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.545334165915847
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-120",
+          "value": 1840
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.637875033542514
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-121",
+          "value": 1847
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.0125000048428774
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-122",
+          "value": 1854
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.114459104835987
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-123",
+          "value": 1861
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.9583750292658806
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-124",
+          "value": 1868
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.1535839661955833
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-125",
+          "value": 1875
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.128750016912818
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-126",
+          "value": 1882
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.1625828705728054
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-127",
+          "value": 1889
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.026457969099283
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-128",
+          "value": 1896
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.058958100154996
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-129",
+          "value": 1903
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.0408340971916914
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-130",
+          "value": 1910
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.9992919880896807
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-131",
+          "value": 1917
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.8317919932305813
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-132",
+          "value": 1924
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.7719999197870493
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-133",
+          "value": 1931
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.6822080835700035
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-134",
+          "value": 1938
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.662041923031211
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-135",
+          "value": 1945
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.640791004523635
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-136",
+          "value": 1952
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.729583065956831
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-137",
+          "value": 1959
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.7481671422719955
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-138",
+          "value": 1966
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.791167004033923
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-139",
+          "value": 1973
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.5396249257028103
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-140",
+          "value": 1980
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.6962498668581247
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-141",
+          "value": 1987
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.6477910578250885
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-142",
+          "value": 1994
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.6432499289512634
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-143",
+          "value": 2001
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.6374999433755875
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-144",
+          "value": 2008
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.532707992941141
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-145",
+          "value": 2015
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.491916995495558
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-146",
+          "value": 2022
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.5049170944839716
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-147",
+          "value": 2029
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.4849160108715296
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-148",
+          "value": 2036
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.5037089362740517
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-149",
+          "value": 2043
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.5952497962862253
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-150",
+          "value": 2050
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.571292221546173
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-151",
+          "value": 2057
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.579708117991686
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-152",
+          "value": 2064
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.539166947826743
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-153",
+          "value": 2071
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.631167182698846
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-154",
+          "value": 2078
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.605500165373087
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-155",
+          "value": 2085
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.517000073567033
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-156",
+          "value": 2092
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.417166018858552
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-157",
+          "value": 2099
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.309040864929557
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-158",
+          "value": 2106
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.2655418142676353
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-159",
+          "value": 2113
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.263291971758008
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-160",
+          "value": 2120
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.3281669709831476
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-161",
+          "value": 2127
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.3710420355200768
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-162",
+          "value": 2134
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.3335828445851803
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-163",
+          "value": 2141
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.349250018596649
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-164",
+          "value": 2148
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.3612501099705696
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-165",
+          "value": 2155
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.3185841273516417
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-166",
+          "value": 2162
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.34987516887486
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-167",
+          "value": 2169
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.313958015292883
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-168",
+          "value": 2176
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.3561250418424606
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-169",
+          "value": 2183
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.316333120688796
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-170",
+          "value": 2190
+        },
+        "response": {
+          "receipts": [
+            null,
+            null
+          ],
+          "acknowledged": false,
+          "pid": 35665
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.1672078873962164
+      }
+    ],
+    "windows": [
+      {
+        "measured": true,
+        "epoch": 2,
+        "stable_epoch": true,
+        "requests": 50,
+        "correct": 0,
+        "pass_window": false
+      },
+      {
+        "measured": true,
+        "epoch": 2,
+        "stable_epoch": true,
+        "requests": 50,
+        "correct": 0,
+        "pass_window": false
+      },
+      {
+        "measured": true,
+        "epoch": 2,
+        "stable_epoch": true,
+        "requests": 50,
+        "correct": 0,
+        "pass_window": false
+      }
+    ],
+    "health": false
+  },
+  "policy": "RAC-adapter-atomic",
+  "upstream_rollback": {
+    "success": false,
+    "error_type": "CriticalFailure",
+    "message": "Compensation failed immediately: Handler: candidate predicate false"
+  },
+  "grade": {
+    "configuration": false,
+    "partial": false,
+    "history_safe": true,
+    "violations": [],
+    "status_valid": true,
+    "effect_claims_consistent": true,
+    "evidence_complete": true,
+    "evidence_failures": [],
+    "health": false,
+    "operational": false,
+    "certified_configuration": false,
+    "certified_operational": false,
+    "unsupported_claim": false
+  }
+}

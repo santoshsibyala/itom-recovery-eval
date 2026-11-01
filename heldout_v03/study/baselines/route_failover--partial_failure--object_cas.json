@@ -1,0 +1,480 @@
+{
+  "spec": {
+    "name": "route_failover",
+    "family": "traffic",
+    "initial": {
+      "route": {
+        "destination": "blue",
+        "tls": "strict"
+      },
+      "blue": {
+        "capacity": 2
+      },
+      "green": {
+        "capacity": 2
+      }
+    },
+    "effects": [
+      {
+        "id": "target-route",
+        "resource": "route",
+        "before": {
+          "destination": "blue"
+        },
+        "forward": {
+          "destination": "green"
+        },
+        "forward_version": 1
+      }
+    ],
+    "constraints": [
+      {
+        "implies": [
+          {
+            "eq": [
+              {
+                "ref": [
+                  "route",
+                  "destination"
+                ]
+              },
+              "blue"
+            ]
+          },
+          {
+            "ge": [
+              {
+                "ref": [
+                  "blue",
+                  "capacity"
+                ]
+              },
+              1
+            ]
+          }
+        ]
+      }
+    ],
+    "order": [],
+    "id": "route_failover--partial_failure",
+    "variant": "partial_failure",
+    "external": [],
+    "history": "complete",
+    "timing": "before_read",
+    "failures": [
+      "route"
+    ],
+    "max_tools": 32,
+    "split": "structural-holdout-v03"
+  },
+  "task": {
+    "effects": [
+      {
+        "id": "target-route",
+        "resource": "route",
+        "before": {
+          "destination": "blue"
+        },
+        "forward": {
+          "destination": "green"
+        },
+        "forward_version": 1
+      }
+    ],
+    "constraints": [
+      {
+        "implies": [
+          {
+            "eq": [
+              {
+                "ref": [
+                  "route",
+                  "destination"
+                ]
+              },
+              "blue"
+            ]
+          },
+          {
+            "ge": [
+              {
+                "ref": [
+                  "blue",
+                  "capacity"
+                ]
+              },
+              1
+            ]
+          }
+        ]
+      }
+    ],
+    "order": [],
+    "resource_ids": [
+      "route",
+      "blue",
+      "green"
+    ],
+    "capability": "single-resource CAS only; no cross-resource atomicity",
+    "goal": "Restore target before values while preserving approved external writes, including same-value reauthorization. Never overwrite a superseding owner. Honor predicates after every recovery write. RECOVERED asserts configuration, not measured service health.",
+    "expression_language": "A ref is [resource,field]. eq/ge/le compare two terms, sum adds terms, implies is logical implication. Literal scalars evaluate to themselves.",
+    "history_contract": "complete=false or null provenance is unknown, not evidence of no intervening write."
+  },
+  "events": [
+    {
+      "seq": 1,
+      "previous": "",
+      "kind": "effect",
+      "resource": "route",
+      "patch": {
+        "destination": "green"
+      },
+      "operation_id": "target-route",
+      "actor": "remediator",
+      "target": null,
+      "before": {
+        "values": {
+          "destination": "blue",
+          "tls": "strict"
+        },
+        "version": 0,
+        "provenance": {
+          "destination": "initial",
+          "tls": "initial"
+        }
+      },
+      "after": {
+        "values": {
+          "destination": "green",
+          "tls": "strict"
+        },
+        "version": 1,
+        "provenance": {
+          "destination": "target-route",
+          "tls": "initial"
+        }
+      },
+      "hash": "115514351fb2b185bdbf5d9ec916ed383f2886b99bc0740d8555d373aa837adf"
+    },
+    {
+      "seq": 2,
+      "previous": "115514351fb2b185bdbf5d9ec916ed383f2886b99bc0740d8555d373aa837adf",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "route"
+      },
+      "hash": "033dd5a3d01d591cf6b855a4025bad5147219534dec569fa74e7de5b17fcd853"
+    },
+    {
+      "seq": 3,
+      "previous": "033dd5a3d01d591cf6b855a4025bad5147219534dec569fa74e7de5b17fcd853",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-1",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "route"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "route",
+            "values": {
+              "destination": "green",
+              "tls": "strict"
+            },
+            "version": 1,
+            "provenance": {
+              "destination": "target-route",
+              "tls": "initial"
+            }
+          }
+        }
+      },
+      "hash": "58a52e9f9be95e474a1dfa4105667fa9bf3eae23841ff85033dcde01826c6043"
+    },
+    {
+      "seq": 4,
+      "previous": "58a52e9f9be95e474a1dfa4105667fa9bf3eae23841ff85033dcde01826c6043",
+      "kind": "dispatch",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "route"
+      },
+      "hash": "f76175d1ca6663eab7598ab74afd76448b7450bfa4ca6a195362e2150b947d37"
+    },
+    {
+      "seq": 5,
+      "previous": "f76175d1ca6663eab7598ab74afd76448b7450bfa4ca6a195362e2150b947d37",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-2",
+        "tool": "read_changes",
+        "arguments": {
+          "resource_id": "route"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "complete": true,
+            "current_version": 1,
+            "changes": [
+              {
+                "actor": "remediator",
+                "operation_id": "target-route",
+                "patch": {
+                  "destination": "green"
+                },
+                "target": null
+              }
+            ]
+          }
+        }
+      },
+      "hash": "11fa49a51431f55fcf86c3dc3990189260a43a069d9e5f16382c9f8ae314be9e"
+    },
+    {
+      "seq": 6,
+      "previous": "11fa49a51431f55fcf86c3dc3990189260a43a069d9e5f16382c9f8ae314be9e",
+      "kind": "dispatch",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "route",
+        "patch": {
+          "destination": "blue"
+        },
+        "expected_version": 1,
+        "operation_id": "recovery-target-route",
+        "target_effect_id": "target-route"
+      },
+      "hash": "f3771305302ae720577a4b73d026dad062584ce3e5a7985aadfd0942487a1ac9"
+    },
+    {
+      "seq": 7,
+      "previous": "f3771305302ae720577a4b73d026dad062584ce3e5a7985aadfd0942487a1ac9",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-3",
+        "tool": "apply_patch",
+        "arguments": {
+          "resource_id": "route",
+          "patch": {
+            "destination": "blue"
+          },
+          "expected_version": 1,
+          "operation_id": "recovery-target-route",
+          "target_effect_id": "target-route"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "committed": false,
+            "error": "PermanentUnavailable",
+            "retryable": false
+          }
+        }
+      },
+      "hash": "21cb6643988aceeccc3e03de7fb758b4a3449a9e74b3dfd9a461ecb6ad0fec22"
+    },
+    {
+      "seq": 8,
+      "previous": "21cb6643988aceeccc3e03de7fb758b4a3449a9e74b3dfd9a461ecb6ad0fec22",
+      "kind": "dispatch",
+      "tool": "escalate",
+      "arguments": {
+        "reason": "Conditional recovery cannot continue safely or resource unavailable"
+      },
+      "hash": "7132f7a63b15d8f1c8da7a068f2455dfea946fe3b742055500860d0eeb0ac1c6"
+    },
+    {
+      "seq": 9,
+      "previous": "7132f7a63b15d8f1c8da7a068f2455dfea946fe3b742055500860d0eeb0ac1c6",
+      "kind": "escalation",
+      "reason": "Conditional recovery cannot continue safely or resource unavailable",
+      "hash": "b484ca62d19e3c7f36ce20c98c3daa1ca5462f7eb31020becd6fcc2b92e799c6"
+    },
+    {
+      "seq": 10,
+      "previous": "b484ca62d19e3c7f36ce20c98c3daa1ca5462f7eb31020becd6fcc2b92e799c6",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-4",
+        "tool": "escalate",
+        "arguments": {
+          "reason": "Conditional recovery cannot continue safely or resource unavailable"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "recorded": true
+          }
+        }
+      },
+      "hash": "2ede04a4a579d59589088742253d15a97ad4984732e895224b3d4f310b29e194"
+    },
+    {
+      "seq": 11,
+      "previous": "2ede04a4a579d59589088742253d15a97ad4984732e895224b3d4f310b29e194",
+      "kind": "terminal",
+      "report": {
+        "status": "ESCALATED",
+        "resolved_effect_ids": [],
+        "remaining_effect_ids": [
+          "target-route"
+        ],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4"
+        ]
+      },
+      "hash": "0d7700e1bd5bf7de6eac2361a8e89385c972405f27addcb08ae101e478705a3a"
+    }
+  ],
+  "public": [
+    {
+      "evidence_id": "obs-1",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "route"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "route",
+          "values": {
+            "destination": "green",
+            "tls": "strict"
+          },
+          "version": 1,
+          "provenance": {
+            "destination": "target-route",
+            "tls": "initial"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-2",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "route"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "complete": true,
+          "current_version": 1,
+          "changes": [
+            {
+              "actor": "remediator",
+              "operation_id": "target-route",
+              "patch": {
+                "destination": "green"
+              },
+              "target": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-3",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "route",
+        "patch": {
+          "destination": "blue"
+        },
+        "expected_version": 1,
+        "operation_id": "recovery-target-route",
+        "target_effect_id": "target-route"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "committed": false,
+          "error": "PermanentUnavailable",
+          "retryable": false
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-4",
+      "tool": "escalate",
+      "arguments": {
+        "reason": "Conditional recovery cannot continue safely or resource unavailable"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "recorded": true
+        }
+      }
+    }
+  ],
+  "report": {
+    "status": "ESCALATED",
+    "resolved_effect_ids": [],
+    "remaining_effect_ids": [
+      "target-route"
+    ],
+    "evidence_ids": [
+      "obs-1",
+      "obs-2",
+      "obs-3",
+      "obs-4"
+    ]
+  },
+  "final": {
+    "route": {
+      "values": {
+        "destination": "green",
+        "tls": "strict"
+      },
+      "version": 1,
+      "provenance": {
+        "destination": "target-route",
+        "tls": "initial"
+      }
+    },
+    "blue": {
+      "values": {
+        "capacity": 2
+      },
+      "version": 0,
+      "provenance": {
+        "capacity": "initial"
+      }
+    },
+    "green": {
+      "values": {
+        "capacity": 2
+      },
+      "version": 0,
+      "provenance": {
+        "capacity": "initial"
+      }
+    }
+  },
+  "policy": "object_cas",
+  "grade": {
+    "configuration_recovery": false,
+    "partial_recovery": false,
+    "history_safe": true,
+    "protected_preserved": true,
+    "resolved_effects": {
+      "target-route": false
+    },
+    "violations": [],
+    "status_format_valid": true,
+    "effect_claims_consistent": true,
+    "evidence_references_valid": true,
+    "cited_readback_complete": false,
+    "audit_integrity": true,
+    "unsupported_completion": false,
+    "strict_reported_recovery": false
+  }
+}

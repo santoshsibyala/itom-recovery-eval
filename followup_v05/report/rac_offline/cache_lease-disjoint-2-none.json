@@ -1,0 +1,779 @@
+{
+  "spec": {
+    "name": "cache_lease",
+    "variant": "disjoint",
+    "replicate": 2,
+    "initial": {
+      "cache": {
+        "ttl": 10,
+        "tag": "original"
+      },
+      "lease": {
+        "duration": 20
+      },
+      "policy": {
+        "maximum": 60
+      }
+    },
+    "effects": [
+      {
+        "id": "target-cache",
+        "resource": "cache",
+        "before": {
+          "ttl": 10
+        },
+        "forward": {
+          "ttl": 5
+        }
+      },
+      {
+        "id": "target-lease",
+        "resource": "lease",
+        "before": {
+          "duration": 20
+        },
+        "forward": {
+          "duration": 30
+        }
+      }
+    ],
+    "order": [],
+    "predicates": [
+      [
+        "le",
+        "cache.ttl",
+        "lease.duration"
+      ],
+      [
+        "le",
+        "lease.duration",
+        "policy.maximum"
+      ]
+    ],
+    "external": [
+      {
+        "resource": "cache",
+        "patch": {
+          "tag": "operator"
+        }
+      }
+    ],
+    "timing": "initial",
+    "hidden": false,
+    "failures": [],
+    "delay_ms": 4,
+    "lingering": false
+  },
+  "task": {
+    "effects": [
+      {
+        "id": "target-cache",
+        "resource": "cache",
+        "before": {
+          "ttl": 10
+        },
+        "forward": {
+          "ttl": 5
+        }
+      },
+      {
+        "id": "target-lease",
+        "resource": "lease",
+        "before": {
+          "duration": 20
+        },
+        "forward": {
+          "duration": 30
+        }
+      }
+    ],
+    "order": [],
+    "predicates": [
+      [
+        "le",
+        "cache.ttl",
+        "lease.duration"
+      ],
+      [
+        "le",
+        "lease.duration",
+        "policy.maximum"
+      ]
+    ],
+    "resource_ids": [
+      "cache",
+      "lease",
+      "policy"
+    ],
+    "guard": "none",
+    "goal": "Restore all target before values without overwriting external ownership, out-of-scope changes, order violations, or false predicates. RECOVERED asserts safe configuration, not health. OPERATIONAL asserts both.",
+    "evidence": "After all writes, read_resource and read_changes for * (all resources), then read_health. Cite all three observations and audit each committed operation with those observations. All complete histories, owners, matching versions, and a common terminal epoch are required for acceptance. Unknown history cannot certify recovery."
+  },
+  "guard": "none",
+  "events": [
+    {
+      "actor": "remediator",
+      "after": {
+        "owners": {
+          "tag": "initial",
+          "ttl": "target-cache"
+        },
+        "values": {
+          "tag": "original",
+          "ttl": 5
+        },
+        "version": 1
+      },
+      "before": {
+        "owners": {
+          "tag": "initial",
+          "ttl": "initial"
+        },
+        "values": {
+          "tag": "original",
+          "ttl": 10
+        },
+        "version": 0
+      },
+      "hash": "16f8fd43fa88eaebe522b92e156c5ec4d174bf37ca1c334a5b36901499e3e3cf",
+      "operation_id": "target-cache",
+      "patch": {
+        "ttl": 5
+      },
+      "previous": "",
+      "resource": "cache",
+      "seq": 1,
+      "target": "target-cache"
+    },
+    {
+      "actor": "remediator",
+      "after": {
+        "owners": {
+          "duration": "target-lease"
+        },
+        "values": {
+          "duration": 30
+        },
+        "version": 1
+      },
+      "before": {
+        "owners": {
+          "duration": "initial"
+        },
+        "values": {
+          "duration": 20
+        },
+        "version": 0
+      },
+      "hash": "5c505cfe96b46c6560f2b034ed989dab0f9dd03563519358e5f87391491ef283",
+      "operation_id": "target-lease",
+      "patch": {
+        "duration": 30
+      },
+      "previous": "16f8fd43fa88eaebe522b92e156c5ec4d174bf37ca1c334a5b36901499e3e3cf",
+      "resource": "lease",
+      "seq": 2,
+      "target": "target-lease"
+    },
+    {
+      "actor": "operator",
+      "after": {
+        "owners": {
+          "tag": "operator-0",
+          "ttl": "target-cache"
+        },
+        "values": {
+          "tag": "operator",
+          "ttl": 5
+        },
+        "version": 2
+      },
+      "before": {
+        "owners": {
+          "tag": "initial",
+          "ttl": "target-cache"
+        },
+        "values": {
+          "tag": "original",
+          "ttl": 5
+        },
+        "version": 1
+      },
+      "hash": "c0b3337282d49ecec298cdb4ac7f9e2d6baa0a2c0da4ae984c63f1b6089471b8",
+      "operation_id": "operator-0",
+      "patch": {
+        "tag": "operator"
+      },
+      "previous": "5c505cfe96b46c6560f2b034ed989dab0f9dd03563519358e5f87391491ef283",
+      "resource": "cache",
+      "seq": 3,
+      "target": null
+    },
+    {
+      "actor": "recovery",
+      "after": {
+        "owners": {
+          "tag": "operator-0",
+          "ttl": "recovery-target-cache"
+        },
+        "values": {
+          "tag": "operator",
+          "ttl": 10
+        },
+        "version": 3
+      },
+      "before": {
+        "owners": {
+          "tag": "operator-0",
+          "ttl": "target-cache"
+        },
+        "values": {
+          "tag": "operator",
+          "ttl": 5
+        },
+        "version": 2
+      },
+      "hash": "6082810352b7e28f73b7e1d9c45faf29ef8a9a476712f8146b7d451bb948295f",
+      "operation_id": "recovery-target-cache",
+      "patch": {
+        "ttl": 10
+      },
+      "previous": "c0b3337282d49ecec298cdb4ac7f9e2d6baa0a2c0da4ae984c63f1b6089471b8",
+      "resource": "cache",
+      "seq": 4,
+      "target": "target-cache"
+    },
+    {
+      "actor": "recovery",
+      "after": {
+        "owners": {
+          "duration": "recovery-target-lease"
+        },
+        "values": {
+          "duration": 20
+        },
+        "version": 2
+      },
+      "before": {
+        "owners": {
+          "duration": "target-lease"
+        },
+        "values": {
+          "duration": 30
+        },
+        "version": 1
+      },
+      "hash": "fbd3c8c8515efb23d02ec4d551013a6c3fb37c5e8dcf827c06decfd3d0a8736b",
+      "operation_id": "recovery-target-lease",
+      "patch": {
+        "duration": 20
+      },
+      "previous": "6082810352b7e28f73b7e1d9c45faf29ef8a9a476712f8146b7d451bb948295f",
+      "resource": "lease",
+      "seq": 5,
+      "target": "target-lease"
+    }
+  ],
+  "public": [
+    {
+      "evidence_id": "obs-1",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 3,
+          "resources": {
+            "cache": {
+              "owners": {
+                "tag": "operator-0",
+                "ttl": "target-cache"
+              },
+              "values": {
+                "tag": "operator",
+                "ttl": 5
+              },
+              "version": 2
+            },
+            "lease": {
+              "owners": {
+                "duration": "target-lease"
+              },
+              "values": {
+                "duration": 30
+              },
+              "version": 1
+            },
+            "policy": {
+              "owners": {
+                "maximum": "initial"
+              },
+              "values": {
+                "maximum": 60
+              },
+              "version": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-2",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 3,
+          "resources": {
+            "cache": {
+              "complete": true,
+              "version": 2,
+              "changes": [
+                {
+                  "operation_id": "target-cache",
+                  "actor": "remediator",
+                  "patch": {
+                    "ttl": 5
+                  }
+                },
+                {
+                  "operation_id": "operator-0",
+                  "actor": "operator",
+                  "patch": {
+                    "tag": "operator"
+                  }
+                }
+              ]
+            },
+            "lease": {
+              "complete": true,
+              "version": 1,
+              "changes": [
+                {
+                  "operation_id": "target-lease",
+                  "actor": "remediator",
+                  "patch": {
+                    "duration": 30
+                  }
+                }
+              ]
+            },
+            "policy": {
+              "complete": true,
+              "version": 0,
+              "changes": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-3",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "cache",
+        "patch": {
+          "ttl": 10
+        },
+        "expected_version": 2,
+        "operation_id": "recovery-target-cache",
+        "target_effect_id": "target-cache"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "committed": true,
+          "operation_id": "recovery-target-cache",
+          "version": 3
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-4",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 4,
+          "resources": {
+            "cache": {
+              "owners": {
+                "tag": "operator-0",
+                "ttl": "recovery-target-cache"
+              },
+              "values": {
+                "tag": "operator",
+                "ttl": 10
+              },
+              "version": 3
+            },
+            "lease": {
+              "owners": {
+                "duration": "target-lease"
+              },
+              "values": {
+                "duration": 30
+              },
+              "version": 1
+            },
+            "policy": {
+              "owners": {
+                "maximum": "initial"
+              },
+              "values": {
+                "maximum": 60
+              },
+              "version": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-5",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 4,
+          "resources": {
+            "cache": {
+              "complete": true,
+              "version": 3,
+              "changes": [
+                {
+                  "operation_id": "target-cache",
+                  "actor": "remediator",
+                  "patch": {
+                    "ttl": 5
+                  }
+                },
+                {
+                  "operation_id": "operator-0",
+                  "actor": "operator",
+                  "patch": {
+                    "tag": "operator"
+                  }
+                },
+                {
+                  "operation_id": "recovery-target-cache",
+                  "actor": "recovery",
+                  "patch": {
+                    "ttl": 10
+                  }
+                }
+              ]
+            },
+            "lease": {
+              "complete": true,
+              "version": 1,
+              "changes": [
+                {
+                  "operation_id": "target-lease",
+                  "actor": "remediator",
+                  "patch": {
+                    "duration": 30
+                  }
+                }
+              ]
+            },
+            "policy": {
+              "complete": true,
+              "version": 0,
+              "changes": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-6",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "lease",
+        "patch": {
+          "duration": 20
+        },
+        "expected_version": 1,
+        "operation_id": "recovery-target-lease",
+        "target_effect_id": "target-lease"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "committed": true,
+          "operation_id": "recovery-target-lease",
+          "version": 2
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-7",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 5,
+          "resources": {
+            "cache": {
+              "owners": {
+                "tag": "operator-0",
+                "ttl": "recovery-target-cache"
+              },
+              "values": {
+                "tag": "operator",
+                "ttl": 10
+              },
+              "version": 3
+            },
+            "lease": {
+              "owners": {
+                "duration": "recovery-target-lease"
+              },
+              "values": {
+                "duration": 20
+              },
+              "version": 2
+            },
+            "policy": {
+              "owners": {
+                "maximum": "initial"
+              },
+              "values": {
+                "maximum": 60
+              },
+              "version": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-8",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 5,
+          "resources": {
+            "cache": {
+              "complete": true,
+              "version": 3,
+              "changes": [
+                {
+                  "operation_id": "target-cache",
+                  "actor": "remediator",
+                  "patch": {
+                    "ttl": 5
+                  }
+                },
+                {
+                  "operation_id": "operator-0",
+                  "actor": "operator",
+                  "patch": {
+                    "tag": "operator"
+                  }
+                },
+                {
+                  "operation_id": "recovery-target-cache",
+                  "actor": "recovery",
+                  "patch": {
+                    "ttl": 10
+                  }
+                }
+              ]
+            },
+            "lease": {
+              "complete": true,
+              "version": 2,
+              "changes": [
+                {
+                  "operation_id": "target-lease",
+                  "actor": "remediator",
+                  "patch": {
+                    "duration": 30
+                  }
+                },
+                {
+                  "operation_id": "recovery-target-lease",
+                  "actor": "recovery",
+                  "patch": {
+                    "duration": 20
+                  }
+                }
+              ]
+            },
+            "policy": {
+              "complete": true,
+              "version": 0,
+              "changes": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-9",
+      "tool": "read_health",
+      "arguments": {},
+      "reply": {
+        "ok": true,
+        "result": {
+          "measured": false,
+          "epoch": 5,
+          "stable_epoch": true,
+          "pass_window": true
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-10",
+      "tool": "record_recovery_audit",
+      "arguments": {
+        "effect_ids": [
+          "recovery-target-cache",
+          "recovery-target-lease"
+        ],
+        "evidence_ids": [
+          "obs-7",
+          "obs-8",
+          "obs-9"
+        ]
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "recorded": true
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "before_epoch": 3,
+      "after_epoch": 3
+    },
+    {
+      "before_epoch": 3,
+      "after_epoch": 3
+    },
+    {
+      "before_epoch": 3,
+      "after_epoch": 4
+    },
+    {
+      "before_epoch": 4,
+      "after_epoch": 4
+    },
+    {
+      "before_epoch": 4,
+      "after_epoch": 4
+    },
+    {
+      "before_epoch": 4,
+      "after_epoch": 5
+    },
+    {
+      "before_epoch": 5,
+      "after_epoch": 5
+    },
+    {
+      "before_epoch": 5,
+      "after_epoch": 5
+    },
+    {
+      "before_epoch": 5,
+      "after_epoch": 5
+    },
+    {
+      "before_epoch": 5,
+      "after_epoch": 5
+    }
+  ],
+  "report": {
+    "status": "RECOVERED",
+    "resolved_effect_ids": [
+      "target-cache",
+      "target-lease"
+    ],
+    "remaining_effect_ids": [],
+    "evidence_ids": [
+      "obs-7",
+      "obs-8",
+      "obs-9"
+    ]
+  },
+  "final": {
+    "cache": {
+      "owners": {
+        "tag": "operator-0",
+        "ttl": "recovery-target-cache"
+      },
+      "values": {
+        "tag": "operator",
+        "ttl": 10
+      },
+      "version": 3
+    },
+    "lease": {
+      "owners": {
+        "duration": "recovery-target-lease"
+      },
+      "values": {
+        "duration": 20
+      },
+      "version": 2
+    },
+    "policy": {
+      "owners": {
+        "maximum": "initial"
+      },
+      "values": {
+        "maximum": 60
+      },
+      "version": 0
+    }
+  },
+  "policy": "RAC-adapter-none",
+  "upstream_rollback": {
+    "success": true,
+    "compensated": [
+      "65f01c1c-3bd9-4bc1-8519-8bd080960f68",
+      "a12bf0e6-ecaf-40d5-abb7-6731ba2387c2"
+    ],
+    "failed": [],
+    "message": "Rolled back 2 actions"
+  },
+  "grade": {
+    "configuration": true,
+    "partial": false,
+    "history_safe": true,
+    "violations": [],
+    "status_valid": true,
+    "effect_claims_consistent": true,
+    "evidence_complete": true,
+    "evidence_failures": [],
+    "health": false,
+    "operational": false,
+    "certified_configuration": true,
+    "certified_operational": false,
+    "unsupported_claim": false
+  }
+}

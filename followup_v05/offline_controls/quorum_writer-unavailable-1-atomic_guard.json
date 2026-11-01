@@ -1,0 +1,697 @@
+{
+  "spec": {
+    "name": "quorum_writer",
+    "variant": "unavailable",
+    "replicate": 1,
+    "initial": {
+      "writer": {
+        "copies": 2,
+        "tag": "original"
+      },
+      "ack": {
+        "required": 2,
+        "tag": "original"
+      },
+      "pool": {
+        "available": 2
+      }
+    },
+    "effects": [
+      {
+        "id": "target-ack",
+        "resource": "ack",
+        "before": {
+          "required": 2
+        },
+        "forward": {
+          "required": 1
+        }
+      },
+      {
+        "id": "target-writer",
+        "resource": "writer",
+        "before": {
+          "copies": 2
+        },
+        "forward": {
+          "copies": 1
+        }
+      }
+    ],
+    "order": [
+      [
+        "target-writer",
+        "target-ack"
+      ]
+    ],
+    "predicates": [
+      [
+        "le",
+        "ack.required",
+        "writer.copies"
+      ],
+      [
+        "le",
+        "writer.copies",
+        "pool.available"
+      ]
+    ],
+    "external": [],
+    "timing": "initial",
+    "hidden": false,
+    "failures": [
+      "ack"
+    ],
+    "delay_ms": 0,
+    "lingering": false
+  },
+  "task": {
+    "effects": [
+      {
+        "id": "target-ack",
+        "resource": "ack",
+        "before": {
+          "required": 2
+        },
+        "forward": {
+          "required": 1
+        }
+      },
+      {
+        "id": "target-writer",
+        "resource": "writer",
+        "before": {
+          "copies": 2
+        },
+        "forward": {
+          "copies": 1
+        }
+      }
+    ],
+    "order": [
+      [
+        "target-writer",
+        "target-ack"
+      ]
+    ],
+    "predicates": [
+      [
+        "le",
+        "ack.required",
+        "writer.copies"
+      ],
+      [
+        "le",
+        "writer.copies",
+        "pool.available"
+      ]
+    ],
+    "resource_ids": [
+      "writer",
+      "ack",
+      "pool"
+    ],
+    "guard": "atomic",
+    "goal": "Restore all target before values without overwriting external ownership, out-of-scope changes, order violations, or false predicates. RECOVERED asserts safe configuration, not health. OPERATIONAL asserts both.",
+    "evidence": "After all writes, read_resource and read_changes for * (all resources), then read_health. Cite all three observations and audit each committed operation with those observations. All complete histories, owners, matching versions, and a common terminal epoch are required for acceptance. Unknown history cannot certify recovery."
+  },
+  "guard": "atomic",
+  "events": [
+    {
+      "actor": "remediator",
+      "after": {
+        "owners": {
+          "required": "target-ack",
+          "tag": "initial"
+        },
+        "values": {
+          "required": 1,
+          "tag": "original"
+        },
+        "version": 1
+      },
+      "before": {
+        "owners": {
+          "required": "initial",
+          "tag": "initial"
+        },
+        "values": {
+          "required": 2,
+          "tag": "original"
+        },
+        "version": 0
+      },
+      "hash": "501a2802a2d547a19a85dbf66587d28be1766614547b9bcbd293fbda09bfbe7e",
+      "operation_id": "target-ack",
+      "patch": {
+        "required": 1
+      },
+      "previous": "",
+      "resource": "ack",
+      "seq": 1,
+      "target": "target-ack"
+    },
+    {
+      "actor": "remediator",
+      "after": {
+        "owners": {
+          "copies": "target-writer",
+          "tag": "initial"
+        },
+        "values": {
+          "copies": 1,
+          "tag": "original"
+        },
+        "version": 1
+      },
+      "before": {
+        "owners": {
+          "copies": "initial",
+          "tag": "initial"
+        },
+        "values": {
+          "copies": 2,
+          "tag": "original"
+        },
+        "version": 0
+      },
+      "hash": "fca322a4fe4c6b378b7d0ebd1215d82a0a275c9673d60ec28686a342299bdc8a",
+      "operation_id": "target-writer",
+      "patch": {
+        "copies": 1
+      },
+      "previous": "501a2802a2d547a19a85dbf66587d28be1766614547b9bcbd293fbda09bfbe7e",
+      "resource": "writer",
+      "seq": 2,
+      "target": "target-writer"
+    },
+    {
+      "actor": "recovery",
+      "after": {
+        "owners": {
+          "copies": "recovery-target-writer",
+          "tag": "initial"
+        },
+        "values": {
+          "copies": 2,
+          "tag": "original"
+        },
+        "version": 2
+      },
+      "before": {
+        "owners": {
+          "copies": "target-writer",
+          "tag": "initial"
+        },
+        "values": {
+          "copies": 1,
+          "tag": "original"
+        },
+        "version": 1
+      },
+      "hash": "d99b901a6300174bfc8922c455148eabf0eacb8a9741365cf9e7cabacb482e28",
+      "operation_id": "recovery-target-writer",
+      "patch": {
+        "copies": 2
+      },
+      "previous": "fca322a4fe4c6b378b7d0ebd1215d82a0a275c9673d60ec28686a342299bdc8a",
+      "resource": "writer",
+      "seq": 3,
+      "target": "target-writer"
+    }
+  ],
+  "public": [
+    {
+      "evidence_id": "obs-1",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 2,
+          "resources": {
+            "writer": {
+              "owners": {
+                "copies": "target-writer",
+                "tag": "initial"
+              },
+              "values": {
+                "copies": 1,
+                "tag": "original"
+              },
+              "version": 1
+            },
+            "ack": {
+              "owners": {
+                "required": "target-ack",
+                "tag": "initial"
+              },
+              "values": {
+                "required": 1,
+                "tag": "original"
+              },
+              "version": 1
+            },
+            "pool": {
+              "owners": {
+                "available": "initial"
+              },
+              "values": {
+                "available": 2
+              },
+              "version": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-2",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 2,
+          "resources": {
+            "writer": {
+              "complete": true,
+              "version": 1,
+              "changes": [
+                {
+                  "operation_id": "target-writer",
+                  "actor": "remediator",
+                  "patch": {
+                    "copies": 1
+                  }
+                }
+              ]
+            },
+            "ack": {
+              "complete": true,
+              "version": 1,
+              "changes": [
+                {
+                  "operation_id": "target-ack",
+                  "actor": "remediator",
+                  "patch": {
+                    "required": 1
+                  }
+                }
+              ]
+            },
+            "pool": {
+              "complete": true,
+              "version": 0,
+              "changes": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-3",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "writer",
+        "patch": {
+          "copies": 2
+        },
+        "expected_version": 1,
+        "operation_id": "recovery-target-writer",
+        "target_effect_id": "target-writer"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "committed": true,
+          "operation_id": "recovery-target-writer",
+          "version": 2
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-4",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 3,
+          "resources": {
+            "writer": {
+              "owners": {
+                "copies": "recovery-target-writer",
+                "tag": "initial"
+              },
+              "values": {
+                "copies": 2,
+                "tag": "original"
+              },
+              "version": 2
+            },
+            "ack": {
+              "owners": {
+                "required": "target-ack",
+                "tag": "initial"
+              },
+              "values": {
+                "required": 1,
+                "tag": "original"
+              },
+              "version": 1
+            },
+            "pool": {
+              "owners": {
+                "available": "initial"
+              },
+              "values": {
+                "available": 2
+              },
+              "version": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-5",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 3,
+          "resources": {
+            "writer": {
+              "complete": true,
+              "version": 2,
+              "changes": [
+                {
+                  "operation_id": "target-writer",
+                  "actor": "remediator",
+                  "patch": {
+                    "copies": 1
+                  }
+                },
+                {
+                  "operation_id": "recovery-target-writer",
+                  "actor": "recovery",
+                  "patch": {
+                    "copies": 2
+                  }
+                }
+              ]
+            },
+            "ack": {
+              "complete": true,
+              "version": 1,
+              "changes": [
+                {
+                  "operation_id": "target-ack",
+                  "actor": "remediator",
+                  "patch": {
+                    "required": 1
+                  }
+                }
+              ]
+            },
+            "pool": {
+              "complete": true,
+              "version": 0,
+              "changes": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-6",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "ack",
+        "patch": {
+          "required": 2
+        },
+        "expected_version": 1,
+        "operation_id": "recovery-target-ack",
+        "target_effect_id": "target-ack"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "committed": false,
+          "reason": "permanent_unavailable"
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-7",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 3,
+          "resources": {
+            "writer": {
+              "owners": {
+                "copies": "recovery-target-writer",
+                "tag": "initial"
+              },
+              "values": {
+                "copies": 2,
+                "tag": "original"
+              },
+              "version": 2
+            },
+            "ack": {
+              "owners": {
+                "required": "target-ack",
+                "tag": "initial"
+              },
+              "values": {
+                "required": 1,
+                "tag": "original"
+              },
+              "version": 1
+            },
+            "pool": {
+              "owners": {
+                "available": "initial"
+              },
+              "values": {
+                "available": 2
+              },
+              "version": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-8",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 3,
+          "resources": {
+            "writer": {
+              "complete": true,
+              "version": 2,
+              "changes": [
+                {
+                  "operation_id": "target-writer",
+                  "actor": "remediator",
+                  "patch": {
+                    "copies": 1
+                  }
+                },
+                {
+                  "operation_id": "recovery-target-writer",
+                  "actor": "recovery",
+                  "patch": {
+                    "copies": 2
+                  }
+                }
+              ]
+            },
+            "ack": {
+              "complete": true,
+              "version": 1,
+              "changes": [
+                {
+                  "operation_id": "target-ack",
+                  "actor": "remediator",
+                  "patch": {
+                    "required": 1
+                  }
+                }
+              ]
+            },
+            "pool": {
+              "complete": true,
+              "version": 0,
+              "changes": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-9",
+      "tool": "read_health",
+      "arguments": {},
+      "reply": {
+        "ok": true,
+        "result": {
+          "measured": false,
+          "epoch": 3,
+          "stable_epoch": true,
+          "requests": 0,
+          "correct": 0,
+          "pass_window": true
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-10",
+      "tool": "record_recovery_audit",
+      "arguments": {
+        "effect_ids": [
+          "recovery-target-writer"
+        ],
+        "evidence_ids": [
+          "obs-7",
+          "obs-8",
+          "obs-9"
+        ]
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "recorded": true
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "before_epoch": 2,
+      "after_epoch": 2
+    },
+    {
+      "before_epoch": 2,
+      "after_epoch": 2
+    },
+    {
+      "before_epoch": 2,
+      "after_epoch": 3
+    },
+    {
+      "before_epoch": 3,
+      "after_epoch": 3
+    },
+    {
+      "before_epoch": 3,
+      "after_epoch": 3
+    },
+    {
+      "before_epoch": 3,
+      "after_epoch": 3
+    },
+    {
+      "before_epoch": 3,
+      "after_epoch": 3
+    },
+    {
+      "before_epoch": 3,
+      "after_epoch": 3
+    },
+    {
+      "before_epoch": 3,
+      "after_epoch": 3
+    },
+    {
+      "before_epoch": 3,
+      "after_epoch": 3
+    }
+  ],
+  "report": {
+    "status": "PARTIAL",
+    "resolved_effect_ids": [
+      "target-writer"
+    ],
+    "remaining_effect_ids": [
+      "target-ack"
+    ],
+    "evidence_ids": [
+      "obs-7",
+      "obs-8",
+      "obs-9"
+    ]
+  },
+  "final": {
+    "writer": {
+      "owners": {
+        "copies": "recovery-target-writer",
+        "tag": "initial"
+      },
+      "values": {
+        "copies": 2,
+        "tag": "original"
+      },
+      "version": 2
+    },
+    "ack": {
+      "owners": {
+        "required": "target-ack",
+        "tag": "initial"
+      },
+      "values": {
+        "required": 1,
+        "tag": "original"
+      },
+      "version": 1
+    },
+    "pool": {
+      "owners": {
+        "available": "initial"
+      },
+      "values": {
+        "available": 2
+      },
+      "version": 0
+    }
+  },
+  "policy": "atomic_guard",
+  "grade": {
+    "configuration": false,
+    "partial": true,
+    "history_safe": true,
+    "violations": [],
+    "status_valid": true,
+    "effect_claims_consistent": true,
+    "evidence_complete": true,
+    "evidence_failures": [],
+    "health": false,
+    "operational": false,
+    "certified_configuration": false,
+    "certified_operational": false,
+    "unsupported_claim": false
+  }
+}

@@ -1,0 +1,2576 @@
+{
+  "spec": {
+    "name": "codec_pipeline",
+    "variant": "lingering_fault",
+    "replicate": 3,
+    "initial": {
+      "encoder": {
+        "factor": 2,
+        "tag": "original"
+      },
+      "decoder": {
+        "factor": 2,
+        "tag": "original"
+      },
+      "policy": {
+        "minimum": 1
+      }
+    },
+    "effects": [
+      {
+        "id": "target-decoder",
+        "resource": "decoder",
+        "before": {
+          "factor": 2
+        },
+        "forward": {
+          "factor": 4
+        }
+      },
+      {
+        "id": "target-encoder",
+        "resource": "encoder",
+        "before": {
+          "factor": 2
+        },
+        "forward": {
+          "factor": 3
+        }
+      }
+    ],
+    "order": [
+      [
+        "target-encoder",
+        "target-decoder"
+      ]
+    ],
+    "predicates": [
+      [
+        "le",
+        "encoder.factor",
+        "decoder.factor"
+      ],
+      [
+        "ge",
+        "decoder.factor",
+        "policy.minimum"
+      ]
+    ],
+    "external": [],
+    "timing": "initial",
+    "hidden": false,
+    "failures": [],
+    "delay_ms": 8,
+    "lingering": true
+  },
+  "task": {
+    "effects": [
+      {
+        "id": "target-decoder",
+        "resource": "decoder",
+        "before": {
+          "factor": 2
+        },
+        "forward": {
+          "factor": 4
+        }
+      },
+      {
+        "id": "target-encoder",
+        "resource": "encoder",
+        "before": {
+          "factor": 2
+        },
+        "forward": {
+          "factor": 3
+        }
+      }
+    ],
+    "order": [
+      [
+        "target-encoder",
+        "target-decoder"
+      ]
+    ],
+    "predicates": [
+      [
+        "le",
+        "encoder.factor",
+        "decoder.factor"
+      ],
+      [
+        "ge",
+        "decoder.factor",
+        "policy.minimum"
+      ]
+    ],
+    "resource_ids": [
+      "encoder",
+      "decoder",
+      "policy"
+    ],
+    "guard": "none",
+    "goal": "Restore all target before values without overwriting external ownership, out-of-scope changes, order violations, or false predicates. RECOVERED asserts safe configuration, not health. OPERATIONAL asserts both.",
+    "evidence": "After all writes, read_resource and read_changes for * (all resources), then read_health. Cite all three observations and audit each committed operation with those observations. All complete histories, owners, matching versions, and a common terminal epoch are required for acceptance. Unknown history cannot certify recovery."
+  },
+  "guard": "none",
+  "events": [
+    {
+      "actor": "remediator",
+      "after": {
+        "owners": {
+          "factor": "target-decoder",
+          "tag": "initial"
+        },
+        "values": {
+          "factor": 4,
+          "tag": "original"
+        },
+        "version": 1
+      },
+      "before": {
+        "owners": {
+          "factor": "initial",
+          "tag": "initial"
+        },
+        "values": {
+          "factor": 2,
+          "tag": "original"
+        },
+        "version": 0
+      },
+      "hash": "8f1be225573f1aadd62c50498cff9e4bd115f8bec35406dbecf78e97389264a2",
+      "operation_id": "target-decoder",
+      "patch": {
+        "factor": 4
+      },
+      "previous": "",
+      "resource": "decoder",
+      "seq": 1,
+      "target": "target-decoder"
+    },
+    {
+      "actor": "remediator",
+      "after": {
+        "owners": {
+          "factor": "target-encoder",
+          "tag": "initial"
+        },
+        "values": {
+          "factor": 3,
+          "tag": "original"
+        },
+        "version": 1
+      },
+      "before": {
+        "owners": {
+          "factor": "initial",
+          "tag": "initial"
+        },
+        "values": {
+          "factor": 2,
+          "tag": "original"
+        },
+        "version": 0
+      },
+      "hash": "f25ea8edef82705dbeff3522e3bd2b6e21263d88bb9e9af8971fa5b265dbb264",
+      "operation_id": "target-encoder",
+      "patch": {
+        "factor": 3
+      },
+      "previous": "8f1be225573f1aadd62c50498cff9e4bd115f8bec35406dbecf78e97389264a2",
+      "resource": "encoder",
+      "seq": 2,
+      "target": "target-encoder"
+    }
+  ],
+  "public": [
+    {
+      "evidence_id": "obs-1",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 2,
+          "resources": {
+            "encoder": {
+              "owners": {
+                "factor": "target-encoder",
+                "tag": "initial"
+              },
+              "values": {
+                "factor": 3,
+                "tag": "original"
+              },
+              "version": 1
+            },
+            "decoder": {
+              "owners": {
+                "factor": "target-decoder",
+                "tag": "initial"
+              },
+              "values": {
+                "factor": 4,
+                "tag": "original"
+              },
+              "version": 1
+            },
+            "policy": {
+              "owners": {
+                "minimum": "initial"
+              },
+              "values": {
+                "minimum": 1
+              },
+              "version": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-2",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "*"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "epoch": 2,
+          "resources": {
+            "encoder": {
+              "complete": true,
+              "version": 1,
+              "changes": [
+                {
+                  "operation_id": "target-encoder",
+                  "actor": "remediator",
+                  "patch": {
+                    "factor": 3
+                  }
+                }
+              ]
+            },
+            "decoder": {
+              "complete": true,
+              "version": 1,
+              "changes": [
+                {
+                  "operation_id": "target-decoder",
+                  "actor": "remediator",
+                  "patch": {
+                    "factor": 4
+                  }
+                }
+              ]
+            },
+            "policy": {
+              "complete": true,
+              "version": 0,
+              "changes": []
+            }
+          }
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "before_epoch": 2,
+      "after_epoch": 2
+    },
+    {
+      "before_epoch": 2,
+      "after_epoch": 2
+    }
+  ],
+  "report": {
+    "execution_error": "invalid_action_or_tool_budget"
+  },
+  "final": {
+    "encoder": {
+      "owners": {
+        "factor": "target-encoder",
+        "tag": "initial"
+      },
+      "values": {
+        "factor": 3,
+        "tag": "original"
+      },
+      "version": 1
+    },
+    "decoder": {
+      "owners": {
+        "factor": "target-decoder",
+        "tag": "initial"
+      },
+      "values": {
+        "factor": 4,
+        "tag": "original"
+      },
+      "version": 1
+    },
+    "policy": {
+      "owners": {
+        "minimum": "initial"
+      },
+      "values": {
+        "minimum": 1
+      },
+      "version": 0
+    }
+  },
+  "service": {
+    "processes": [
+      {
+        "port": 60795,
+        "pid": 34437,
+        "role": "codec"
+      },
+      {
+        "port": 60798,
+        "pid": 34439,
+        "role": "gateway"
+      }
+    ],
+    "operators": [],
+    "requests": [
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-1",
+          "value": 1007
+        },
+        "response": {
+          "checksum": "a7f0b84de7a450eaf6ffab449cb0f141b69eb701ffb455f375c3dae4277b25c1",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 14.702375046908855
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-2",
+          "value": 1014
+        },
+        "response": {
+          "checksum": "c78961d3d782d8a85d9344eedae027f43ce6b9fd35c8f355861a39e0d0ddecc5",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.511959057301283
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-3",
+          "value": 1021
+        },
+        "response": {
+          "checksum": "04222ea3e14cb1209b9726defe3efce5196b7afa0a959854a30401be41f4026d",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.314083907753229
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-4",
+          "value": 1028
+        },
+        "response": {
+          "checksum": "9168e847861429230da331e23aa7983862033165c1ce3fe5f6d29a76c04c8a07",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.8194159492850304
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-5",
+          "value": 1035
+        },
+        "response": {
+          "checksum": "eaf89db7108470dc3f6b23ea90618264b3e8f8b6145371667c4055e9c5ce9f52",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.7626669723540545
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-6",
+          "value": 1042
+        },
+        "response": {
+          "checksum": "3da6ee6699da1eb52d358aa59b8e1cf6b5d77db224b4cec0faaa540610fb3b2e",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.7086670268326998
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-7",
+          "value": 1049
+        },
+        "response": {
+          "checksum": "fc091d39524c9d4b5b11f84f9132996a94ca01c9816d2db3b866bef1b0699d91",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.1091250237077475
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-8",
+          "value": 1056
+        },
+        "response": {
+          "checksum": "23c5910b8b10cfa86e40099cf01e5c2b36f4dd0a903f0c60e5517ea177f4d390",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.895874971523881
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-9",
+          "value": 1063
+        },
+        "response": {
+          "checksum": "4d5e5deb0353d3a6c0b5cf97de0a23087a56796a3474ee500edbe4676c3b9716",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.6117501072585583
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-10",
+          "value": 1070
+        },
+        "response": {
+          "checksum": "9f006addc898a6458ff29db72de90b27e29302c92b9c73e33515df56290bd855",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.670041983947158
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-11",
+          "value": 1077
+        },
+        "response": {
+          "checksum": "d72a11d264e746464ed45f73e1ec058e33ad40270c79324be171932d834d11f3",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.7504160534590483
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-12",
+          "value": 1084
+        },
+        "response": {
+          "checksum": "76ba652cbd2ef1931d0546ac1c9d8f12d21c81fad272b754975a0b1561dda275",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.681832993403077
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-13",
+          "value": 1091
+        },
+        "response": {
+          "checksum": "bc57590a33fe355e174396df60ac503f8e99763776307dcd8b9ce8dfe3c47a2a",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.535125007852912
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-14",
+          "value": 1098
+        },
+        "response": {
+          "checksum": "7a9b1b9dd2e433fc1fc962c38ad571bf1ebb49cb365bfdfb2c36d3f059d6fdd5",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.656541997566819
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-15",
+          "value": 1105
+        },
+        "response": {
+          "checksum": "a807c0dc0a5b5ea4a70b12ba52ead3d30922e1eac15c396ccfdea715a2f15396",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.512749982997775
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-16",
+          "value": 1112
+        },
+        "response": {
+          "checksum": "a5af16fb4a4856cc3f8530b5214830a85103fb5a515b39b93e652c0a142363ee",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.6547920424491167
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-17",
+          "value": 1119
+        },
+        "response": {
+          "checksum": "fd0f7e53c5b02b688a57ee37f3d52065cb168a7b9fd5a3abd93d37e1559fbd30",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.6533749662339687
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-18",
+          "value": 1126
+        },
+        "response": {
+          "checksum": "3d34f102d1708fc5edd3111144f78764b4d7b745cb5450815780545495df1e68",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.761208150535822
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-19",
+          "value": 1133
+        },
+        "response": {
+          "checksum": "7ffc2066e20c16e95c0b41167e334afe57ff4991b21c8d581611a3f516a786a9",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.6179579328745604
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-20",
+          "value": 1140
+        },
+        "response": {
+          "checksum": "c0cc3b36d8f848d56fbf95b8259dd6f3bf80707e436233a6bfc2667b49e28c8a",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.092999966815114
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-21",
+          "value": 1147
+        },
+        "response": {
+          "checksum": "eb0c9cdc0862653468dacc6a876a0c40e9d642c50f798bae1162fe27f18d482c",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.698541084304452
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-22",
+          "value": 1154
+        },
+        "response": {
+          "checksum": "80c39b8ca01cdfda142928ba683d503173017d52bfafacb118c62e34ec9bc693",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.984499955549836
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-23",
+          "value": 1161
+        },
+        "response": {
+          "checksum": "062f50753b9095ee2eff40f888d93e61f2ffeb661bb126d15229f03e0463bdb4",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.200833849608898
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-24",
+          "value": 1168
+        },
+        "response": {
+          "checksum": "30e26cef13a6dbbf0e3035f8c16f55670f4e468e97ac7dad43798621da636abf",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.4052080009132624
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-25",
+          "value": 1175
+        },
+        "response": {
+          "checksum": "1de4842b42fa3db35fc4cf058a02acb057a8df02d0d3cdc96e686551aee25a39",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.3317499328404665
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-26",
+          "value": 1182
+        },
+        "response": {
+          "checksum": "be4b2f45069c180ef309521f6770146920df18e69165c577dc7ff8e5a7c34465",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.310082945972681
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-27",
+          "value": 1189
+        },
+        "response": {
+          "checksum": "46db1ca7f3598c26c3e6c8d99e3ed95d2b1c76db040b8f8cd29af723ee086077",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.3550839871168137
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-28",
+          "value": 1196
+        },
+        "response": {
+          "checksum": "1bde41ce9b4fccbf7dde0dc315d1aea5fa03f78c56feb1ba744be9e37fab2dce",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.18237510509789
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-29",
+          "value": 1203
+        },
+        "response": {
+          "checksum": "a2cc73deb383356e2c51d5616631e0071bdf5faba44812156af3526ebc6fba69",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.028874984011054
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-30",
+          "value": 1210
+        },
+        "response": {
+          "checksum": "5e61b431f3823da05836b2139f9a811c3cc078153ba1853b44519879b7d64af4",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.0560840386897326
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-31",
+          "value": 1217
+        },
+        "response": {
+          "checksum": "1bee34b6262a7777362f96e3dd5635764e820f97bab9772f492397774a38d74a",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.0323751270771027
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-32",
+          "value": 1224
+        },
+        "response": {
+          "checksum": "b50d427a71ef5f98a1bdd4335b71d381dc6a3e937d899f87b92af24121bb9579",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.285250160843134
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-33",
+          "value": 1231
+        },
+        "response": {
+          "checksum": "1a5659493256d9eb296edea686b14dfd94116d21c8ab25ec0ca46a46f617067e",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.190541174262762
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-34",
+          "value": 1238
+        },
+        "response": {
+          "checksum": "e0e3fcdfb0803ca538910c12042cb6232acb9e3c6db8908524aea6ed560e5334",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.032458178699017
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-35",
+          "value": 1245
+        },
+        "response": {
+          "checksum": "a8443b1426652157edc23a7c54fb7ad2c7643b5d8c431ceb54bc29341faf7e7c",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.331082873046398
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-36",
+          "value": 1252
+        },
+        "response": {
+          "checksum": "5904c93073387f898f4f339094d4bad7043b6440519debb01b2867939661ded2",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.4945840016007423
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-37",
+          "value": 1259
+        },
+        "response": {
+          "checksum": "828bb918957379a792e06807bcd291daf3c1efaa51325f32d2fc7e3280f1b983",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.2797921448946
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-38",
+          "value": 1266
+        },
+        "response": {
+          "checksum": "5538e771949ffec150f6e8260b2e3801236c7373ed62c22a3f82dc0071265cc4",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.434459049254656
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-39",
+          "value": 1273
+        },
+        "response": {
+          "checksum": "4652614c4d8778e57a970722f142d832798c133a14b1232a92ffe26a0e98919e",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.2588751055300236
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-40",
+          "value": 1280
+        },
+        "response": {
+          "checksum": "eef79a6a04f78a54832c8891ed83f4863850ec0a7d9807e9b6ac208d23a1e59c",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.1399999279528856
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-41",
+          "value": 1287
+        },
+        "response": {
+          "checksum": "339d9d13edbaa267cb977f39e0a9da194e07c1dc9ec3a2567eec6f45776e3018",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.83083282597363
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-42",
+          "value": 1294
+        },
+        "response": {
+          "checksum": "98964da49d0a98402ed3d2d37b3350cf0aa346f522f8f1feb6b01cd680bc9455",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.851749934256077
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-43",
+          "value": 1301
+        },
+        "response": {
+          "checksum": "3cb65cad26f0a517866e06dcba59afa4a5eadf832404e0e17c707b928825c144",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.2390831038355827
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-44",
+          "value": 1308
+        },
+        "response": {
+          "checksum": "dff17949eb4f9ecd9361bb97c38a9404f3d034565e5d4395f073c0c367b5ea0b",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.160834079608321
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-45",
+          "value": 1315
+        },
+        "response": {
+          "checksum": "55c8079ac96c6a4f6a94e3460c79e4006d62374cce6e9fc8b281938a3abc7627",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.639499958604574
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-46",
+          "value": 1322
+        },
+        "response": {
+          "checksum": "c0d2d188feaa1562d9a1ca041b28896773ad5cf55793d9c056a2ece46eb3667a",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.5920829977840185
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-47",
+          "value": 1329
+        },
+        "response": {
+          "checksum": "864995ea35b82212a9a2d456a3f89833f24651c4e5ebc21c18476a9afb065035",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.878583200275898
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-48",
+          "value": 1336
+        },
+        "response": {
+          "checksum": "8c9a013ab70c0434313e3e881c310b9ff24aff1075255ceede3f2c239c231623",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.5462500527501106
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-49",
+          "value": 1343
+        },
+        "response": {
+          "checksum": "9aaf689fbcdfe9f64a071f9cbe28ae44193fa218e72af24456f44bed64583b4d",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.5503751132637262
+      },
+      {
+        "label": "terminal-0",
+        "payload": {
+          "id": "request-50",
+          "value": 1350
+        },
+        "response": {
+          "checksum": "2ec42bc1f3e672fc1cf7fdcfc23246415dcf20f03c0d4a5bbbd92a185708f5b7",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.536833915859461
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-51",
+          "value": 1357
+        },
+        "response": {
+          "checksum": "9989a37538faecc495bbe774b30fb447a1582b8f1bc14ac88dfd84996a7b799a",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.6834580823779106
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-52",
+          "value": 1364
+        },
+        "response": {
+          "checksum": "e39eef82f61b21e2e7f762fcc4307358f165757f2e77ec855d6992f7e0191932",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.2927910797297955
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-53",
+          "value": 1371
+        },
+        "response": {
+          "checksum": "d9a5223b761c375d1263e6e57ebec42d3e0fe3f6f283488d2eb204fb6ff17ee5",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.3309590071439743
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-54",
+          "value": 1378
+        },
+        "response": {
+          "checksum": "6719009a76851c4bed2fcdea10b635c1bd58bf12af0c1fea3a470a87d3ee6995",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.7789999041706324
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-55",
+          "value": 1385
+        },
+        "response": {
+          "checksum": "00037f39cf870a1f49129f9c82d935665d352ffd25ea3296208f6f7b16fd654f",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.3938749693334103
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-56",
+          "value": 1392
+        },
+        "response": {
+          "checksum": "40794500a2845c943a0f4910461d9c39868a2930f689d2dfa9659625aa7a15cc",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.533832961693406
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-57",
+          "value": 1399
+        },
+        "response": {
+          "checksum": "ffa6059b954a4602a9fa1518d10ca6163bce3f9d4bd3ee51c860eb6c2da16675",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.5071250274777412
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-58",
+          "value": 1406
+        },
+        "response": {
+          "checksum": "02abf8fa7d9c4db035df33acba2dcd495ae9af91152ea9a135533cb747eb3afc",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.183332970365882
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-59",
+          "value": 1413
+        },
+        "response": {
+          "checksum": "8dfd13f4376053626e97eb7221d469013cae9bc031027e64f0db2ec114f8ffd9",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.1550829987972975
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-60",
+          "value": 1420
+        },
+        "response": {
+          "checksum": "eab8ff114cc63fd8ab3d9f42249e20b8ce5ecce463e8368e98747f03c50eeabb",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.277417039498687
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-61",
+          "value": 1427
+        },
+        "response": {
+          "checksum": "34be1021b378c5701b4dd1430970982e0dbe72b3b340018d7a9b65939881ed7b",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.2480841036885977
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-62",
+          "value": 1434
+        },
+        "response": {
+          "checksum": "61dbec1d67afe651537e012d2327f6b469780e41565e50e39498f8336fd38cc8",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.9335830584168434
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-63",
+          "value": 1441
+        },
+        "response": {
+          "checksum": "e18037f42fd038fa9b51c6234fa4f332fa681c14653c9852fdf9a0a501bbac24",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.2317498698830605
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-64",
+          "value": 1448
+        },
+        "response": {
+          "checksum": "c6d537e112156be1afbb8a5a85221ff4d95e2461f83f03425549ff42dee7a278",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.6465831324458122
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-65",
+          "value": 1455
+        },
+        "response": {
+          "checksum": "5f302d143dace627a6a87157fd1362b010874e4dc64609b17d87db648de0af3c",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.8737500067800283
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-66",
+          "value": 1462
+        },
+        "response": {
+          "checksum": "235aa062e6372588dbae00552abf36b8ff9c315e3da56cf02786980e764630e9",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.0035000052303076
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-67",
+          "value": 1469
+        },
+        "response": {
+          "checksum": "277375b99e186c72ac38ac47b03199038342fe0389be8765476fa2be0c5b5649",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.539125107228756
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-68",
+          "value": 1476
+        },
+        "response": {
+          "checksum": "737c6b9773fa031bee4787ad780d2c9c9ecb3375a7c1f4dbd8047a6cd5c67b4c",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.0046670213341713
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-69",
+          "value": 1483
+        },
+        "response": {
+          "checksum": "b7e307660e1611cb42bcb28e4bb4a6465ccb5ec2e028ca4be8b84e8787929a38",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.1005830019712448
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-70",
+          "value": 1490
+        },
+        "response": {
+          "checksum": "63ecbfa3a1ad34a1fdd5e3dd3aeaec31456d1d676552c654d5ecf7dab0b2f4f8",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.096291933208704
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-71",
+          "value": 1497
+        },
+        "response": {
+          "checksum": "4739ee3bd29e4f415da8ba9298a087e0fdc9c61378420ba8fbbab298bd74c4df",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.1252909898757935
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-72",
+          "value": 1504
+        },
+        "response": {
+          "checksum": "e9ab39f01d431c5250493a3dc493bba9c43f73a4461c72b5135ee09738582af7",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.1065418366342783
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-73",
+          "value": 1511
+        },
+        "response": {
+          "checksum": "6cc6eefb674286f7d1a0e4adaa840670dafa7870f77c7d6d73d5924c44ce3bff",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.168958144262433
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-74",
+          "value": 1518
+        },
+        "response": {
+          "checksum": "5b64147d2864c61f08bdd4fb85c70d4d26e2b8d7774dc20edabeb13c9391c327",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.3863751664757729
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-75",
+          "value": 1525
+        },
+        "response": {
+          "checksum": "28fdc24c9abb066ea7343dc47c79a7cce15a581bcb30002a96903450bbe641a5",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.3529590796679258
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-76",
+          "value": 1532
+        },
+        "response": {
+          "checksum": "0eaa69a16d7c358a329a7111a809bd2f9a7ff489596bdda17538705e9e03e05d",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.4226250350475311
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-77",
+          "value": 1539
+        },
+        "response": {
+          "checksum": "37b1267a4ff4e12dddfe443810c1f986dcf2f5e96358ab20847d28e3d80883d8",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.3959170319139957
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-78",
+          "value": 1546
+        },
+        "response": {
+          "checksum": "77523aa0395b6ee089984c28fd543755244df3ba6adba24be6b5b20f4fe5c6b3",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.6322920564562082
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-79",
+          "value": 1553
+        },
+        "response": {
+          "checksum": "28dbec0e0501d3cc564103ed9c269ef959e7c697218c4aecc9eec6cbfbf27e97",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.6023330390453339
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-80",
+          "value": 1560
+        },
+        "response": {
+          "checksum": "e361ec1ff521cfdb913fbfeb831a2ae6d8f46d505d9c0286db8682a32ca2aaf4",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.6469999682158232
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-81",
+          "value": 1567
+        },
+        "response": {
+          "checksum": "74e9f3d8efbda803994e08efba32440782235900ee20c261ff17b60e69a3d347",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.5856670215725899
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-82",
+          "value": 1574
+        },
+        "response": {
+          "checksum": "0252b081bda70b478f0131b310a93cb8d79086d785fb4ae392a8c5ffc3ddc5fe",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.794625073671341
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-83",
+          "value": 1581
+        },
+        "response": {
+          "checksum": "274897360371d52c0d6f5e7dcc285f914c51a39bb714f51a7a547433b143c151",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.792290946468711
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-84",
+          "value": 1588
+        },
+        "response": {
+          "checksum": "26c151f9669f97e9117673c9283843f75cab75cf338c189234dd048f08343e69",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.939374953508377
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-85",
+          "value": 1595
+        },
+        "response": {
+          "checksum": "f343a80aafa11416dbea660c9adb5728982363a1db46756a4c4c86849048088b",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.813374925404787
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-86",
+          "value": 1602
+        },
+        "response": {
+          "checksum": "da26b77becf8bcc17aa4e59a0205d8910373e5a25e0d7993fd5b2856c21ecdbb",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.7813339363783598
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-87",
+          "value": 1609
+        },
+        "response": {
+          "checksum": "eaf2067e34d6876930d2b304db688ab6b9d5064b7e682f7831297d39fbe01c92",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.3322079107165337
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-88",
+          "value": 1616
+        },
+        "response": {
+          "checksum": "de3d43caad2bd3c4f0622fc60deecd06b34a0f25a80e30b81fe051a3c54799bb",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.902874791994691
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-89",
+          "value": 1623
+        },
+        "response": {
+          "checksum": "f5efb6e05e55f7eda6e88bec2eec69e6e2919cce997d7da9e6723e71b3021a87",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.9861670918762684
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-90",
+          "value": 1630
+        },
+        "response": {
+          "checksum": "fa3cfb3f1bb823aa9501f88f1f95f732ee6fef2c3a48be7f1d38037b216a549f",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.620917046442628
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-91",
+          "value": 1637
+        },
+        "response": {
+          "checksum": "6dfb97632210ac38a071667cf8be7df83a16178e12f1248e45b2a3d24b3b2bd1",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.250958001241088
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-92",
+          "value": 1644
+        },
+        "response": {
+          "checksum": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.1331659518182278
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-93",
+          "value": 1651
+        },
+        "response": {
+          "checksum": "f97350101e1a9de922bdbb762a33695234102dc119ffafa25c15d0418ec82b23",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.051708986982703
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-94",
+          "value": 1658
+        },
+        "response": {
+          "checksum": "aedec0d0ca66f380aed5fa5634c513c1bdfedc50ff2d734104809ddbc8b82295",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.277415944263339
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-95",
+          "value": 1665
+        },
+        "response": {
+          "checksum": "4579e127cc265d745b89f77b7e266e9e8c46326d35a380e24761b0542d5cca7d",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.376542193815112
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-96",
+          "value": 1672
+        },
+        "response": {
+          "checksum": "3f9eb849d10083d521abdb950e6ac4084bf4c0dad005cc7dab81a3d0a2499715",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.6306670624762774
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-97",
+          "value": 1679
+        },
+        "response": {
+          "checksum": "9c19f29d0e6fefa21eec58f6ff4d0cf807b63d0ed146f1fea0874506b66c35ee",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 1.914583146572113
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-98",
+          "value": 1686
+        },
+        "response": {
+          "checksum": "23b0cc711cca646227414df7e7acb15e878b93723280f388f33f24b5dab92b0b",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.5639579873532057
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-99",
+          "value": 1693
+        },
+        "response": {
+          "checksum": "93654b454b7bc1eea6739e8ca279d028a9f2650c4f3e8843abc47fc5a8893300",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.5352078955620527
+      },
+      {
+        "label": "terminal-1",
+        "payload": {
+          "id": "request-100",
+          "value": 1700
+        },
+        "response": {
+          "checksum": "c8bcad7f2864e0f66e4f8441c5547e899da3efcc43256c4be51280bb072cb018",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.60050012730062
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-101",
+          "value": 1707
+        },
+        "response": {
+          "checksum": "c2a824544a0afd72c9bfe30643efd67fa7b92401d1468625235b3b7cce716a8b",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.8317919932305813
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-102",
+          "value": 1714
+        },
+        "response": {
+          "checksum": "2adf89afa76f370d54092cb53f74d1558f116bbbffe20007a67ba31746fdb7e3",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.034165896475315
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-103",
+          "value": 1721
+        },
+        "response": {
+          "checksum": "a9b9bd8e0ec83c8374c3c83178e416add3f6c8e0011164a40ee91a333b433384",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.9603750444948673
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-104",
+          "value": 1728
+        },
+        "response": {
+          "checksum": "40367c3cc999a9f9e951a1d33211545b84b2d5a63933b0020433000c3bb410fb",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.6214581448584795
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-105",
+          "value": 1735
+        },
+        "response": {
+          "checksum": "ee47968ec53bbe68eaf52703d6cab88d710f59de77edf4826b4ccaad0aed36ab",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.0514169484376907
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-106",
+          "value": 1742
+        },
+        "response": {
+          "checksum": "8c144858bb5ea1a931069f55943c55a427e2530405bbe720e97aae0fda85ee8c",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.8215409256517887
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-107",
+          "value": 1749
+        },
+        "response": {
+          "checksum": "712dca40936b39ce670dc803736fe3735cf99311030a928de039a36f77926230",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.9329590033739805
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-108",
+          "value": 1756
+        },
+        "response": {
+          "checksum": "095eaa09cd36d1f1e7a963c9ad618edab13f466882c9027ab81ffc18b0eb727e",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.1129159033298492
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-109",
+          "value": 1763
+        },
+        "response": {
+          "checksum": "b24e3e21870645af14da826d4cb300c0f4f877c308efa30ff084f976f191aafb",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.407999873161316
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-110",
+          "value": 1770
+        },
+        "response": {
+          "checksum": "040fe555cb4f5459547ee1da624040b002a012b23af44ff9005e59005b7e62ac",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.2952080946415663
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-111",
+          "value": 1777
+        },
+        "response": {
+          "checksum": "6fdd9b073bc00a5da50bbb71825e6461116845cf1fbb3c84cd22aed47a75fdc2",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.394083818420768
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-112",
+          "value": 1784
+        },
+        "response": {
+          "checksum": "462b01670e50875a9df97c18e87cd367dbe7fbd6f32783be20883747e37d5af6",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.120749955996871
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-113",
+          "value": 1791
+        },
+        "response": {
+          "checksum": "aa13fda43018c393de7088225497fee24270d428a9de0d2f8d0cc899f6687e69",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.373167011886835
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-114",
+          "value": 1798
+        },
+        "response": {
+          "checksum": "6f42ae6ab479ee1698056d7ac5452bd3ccdedf788e1d78e5c1098ee13ee00f2b",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.302000066265464
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-115",
+          "value": 1805
+        },
+        "response": {
+          "checksum": "d5b148567313dccf2ecad36152900c51a967603c18fda39cc3c3771b76df0325",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.401832887902856
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-116",
+          "value": 1812
+        },
+        "response": {
+          "checksum": "d034a904e224b629947dac2110cf9900b655e6934aa735d5144f92a3399785fc",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.251874888315797
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-117",
+          "value": 1819
+        },
+        "response": {
+          "checksum": "67d1514f9bb64c1adcec4ff70c012a40d675612d4403bfae978193547b751142",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.5227921325713396
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-118",
+          "value": 1826
+        },
+        "response": {
+          "checksum": "07e9bba1c63a7a01f935ee06d931c453e0864fc0fcc11ec445a8af60a36cc6c8",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.0244579538702965
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-119",
+          "value": 1833
+        },
+        "response": {
+          "checksum": "d818f221cbcb7016316f8a918c9a9967eb7d71ec54785211ec1d0a9ba7923dcd",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.3722089137881994
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-120",
+          "value": 1840
+        },
+        "response": {
+          "checksum": "a39ff608d7c5bc24e03340701adfa5728b72b6b9933f56ffb477ec888ac5c0d6",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.376459004357457
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-121",
+          "value": 1847
+        },
+        "response": {
+          "checksum": "b8044b04302d760305b008520892997750ee61bbbe81b762cfc2cb22c47c5e24",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.193333115428686
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-122",
+          "value": 1854
+        },
+        "response": {
+          "checksum": "01d77b0b1bd2fecc8ddd43210d4d10934aa31db043675f53eb46907a031d10d2",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.507249988615513
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-123",
+          "value": 1861
+        },
+        "response": {
+          "checksum": "7b4f6f46093c9812bff7745ec3bc0f70d49ad40f18ae3bba91f719f15c0571f7",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.4132499024271965
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-124",
+          "value": 1868
+        },
+        "response": {
+          "checksum": "5626696e19ac4b81318bf2bdc4af05efb210da38a29f0cc395eeda1c37d11ede",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.9701249916106462
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-125",
+          "value": 1875
+        },
+        "response": {
+          "checksum": "a3346b8b4c26feb607f8a40699c934ef426dee5ceebf51f9f7209aa79c08a0da",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.226791905239224
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-126",
+          "value": 1882
+        },
+        "response": {
+          "checksum": "8ba36ede1aa545ad0134565edcd06b59293e6ecc8e86eccffab5f6ee4ef90f23",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.387791035696864
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-127",
+          "value": 1889
+        },
+        "response": {
+          "checksum": "2e2f4263cfaaee7aaa1d42ef48a906b51faaf6aa20d72cad0a797005238c822e",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.7603328712284565
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-128",
+          "value": 1896
+        },
+        "response": {
+          "checksum": "e81d47bc1914daacdfe3670959ae7f749fd47976471fc68ed00041f6150c80b6",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.393416922539473
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-129",
+          "value": 1903
+        },
+        "response": {
+          "checksum": "da4bb298d82e8b0c1cde703b60549806e385df057824e9c9b032167c945b0fa8",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.642375046387315
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-130",
+          "value": 1910
+        },
+        "response": {
+          "checksum": "38c02f46b57855590f8cdd17c1b2704e72c3effbb92833b46fec0f2a52cc61aa",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.660417092964053
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-131",
+          "value": 1917
+        },
+        "response": {
+          "checksum": "0594f04659a605a1a4cf43dce46b70def2ce8f4274adf1c88ae9a56059307c43",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 4.040958127006888
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-132",
+          "value": 1924
+        },
+        "response": {
+          "checksum": "2315bd64e75a346541681575e5b227059bc726907f5a5b893505b648a3062e77",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.536458196118474
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-133",
+          "value": 1931
+        },
+        "response": {
+          "checksum": "afd7745eb596901684c7c919fcd6554b281ce0bc43ffa17d86dbc3c951c60127",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.7050001081079245
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-134",
+          "value": 1938
+        },
+        "response": {
+          "checksum": "96b026df37a1f9966a1efa807a2e8dce70c3e4a0ee9d36d2764fe0226bf16ec4",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.169500036165118
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-135",
+          "value": 1945
+        },
+        "response": {
+          "checksum": "8b8b2039da03dec40c356d392dddbdae0625b7e52f6e7f5dbb400c14fbc2c225",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.1560000497847795
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-136",
+          "value": 1952
+        },
+        "response": {
+          "checksum": "4a12e183a11f0e64779e934fd6d928a9c9781d448419196e42c3b666d8e7d2fa",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.5502498503774405
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-137",
+          "value": 1959
+        },
+        "response": {
+          "checksum": "57fb0303e4a6845cd7a1484ee9773c218975e9c9a763114e668259498cad2f30",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.4430420491844416
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-138",
+          "value": 1966
+        },
+        "response": {
+          "checksum": "d3fb4415d5c03cf6544957b7a7a66041c95b447ee149f0e4479f8ac2e48969ea",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 12.508958112448454
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-139",
+          "value": 1973
+        },
+        "response": {
+          "checksum": "22b954454cfc20ef4813c70018c81004795496191338841e0ca4b9ed6e04e81a",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.2747911754995584
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-140",
+          "value": 1980
+        },
+        "response": {
+          "checksum": "248aa2bdd0032920ac9e5f6ad36c350549da067efeaf7b4a0c7d8c212ab1b6a5",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.987415926530957
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-141",
+          "value": 1987
+        },
+        "response": {
+          "checksum": "4cf3ab13ec4367b7b740f2b7f3d477a8a32de23f8e8f399f63b3ed6976a19b12",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.55179188773036
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-142",
+          "value": 1994
+        },
+        "response": {
+          "checksum": "d732f39159e67eb62327ae853dfec69db69ec85b23a8b1f840db1959d32acced",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.9801669772714376
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-143",
+          "value": 2001
+        },
+        "response": {
+          "checksum": "3873ecf4855ce373db4b7afc32fe5884d984d37a32c2c605065671d3eed825d4",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.534791059792042
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-144",
+          "value": 2008
+        },
+        "response": {
+          "checksum": "c77639710bd89eea8855346472b0eb9175987e0eaeb35df92b1712ca09215f05",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.7222090177237988
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-145",
+          "value": 2015
+        },
+        "response": {
+          "checksum": "66c03337b22c301d55a339a94165dc09628491c3dfe01a57ef62e3eab452e898",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.05379182100296
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-146",
+          "value": 2022
+        },
+        "response": {
+          "checksum": "4091f2c5c45d0cb95c6b43919f9f07f62f7f6c6fb46ca207264b2aee4ee6e4f9",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.4219578374177217
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-147",
+          "value": 2029
+        },
+        "response": {
+          "checksum": "ff231d4dee9c91e9ead0253639c25479b934a352b052aa23ad05f6b79efa137b",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.647665958851576
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-148",
+          "value": 2036
+        },
+        "response": {
+          "checksum": "7e46d737fdcad87443ca5b30dd756a5eb6b6dfa94eb0c97ce8c8c16554bc4efb",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.0425000693649054
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-149",
+          "value": 2043
+        },
+        "response": {
+          "checksum": "15310fd04ea64483103071a114d24163331cf0f957bf55bad9760b69b33b2aa0",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 3.480082843452692
+      },
+      {
+        "label": "terminal-2",
+        "payload": {
+          "id": "request-150",
+          "value": 2050
+        },
+        "response": {
+          "checksum": "0f8e631d28e2a339b435ea55da61c718da28902056ed719e576ff1c1b4cb2baf",
+          "pid": 34437
+        },
+        "http_status": 200,
+        "correct": false,
+        "elapsed_ms": 2.9231668449938297
+      }
+    ],
+    "windows": [
+      {
+        "measured": true,
+        "epoch": 2,
+        "stable_epoch": true,
+        "requests": 50,
+        "correct": 0,
+        "pass_window": false
+      },
+      {
+        "measured": true,
+        "epoch": 2,
+        "stable_epoch": true,
+        "requests": 50,
+        "correct": 0,
+        "pass_window": false
+      },
+      {
+        "measured": true,
+        "epoch": 2,
+        "stable_epoch": true,
+        "requests": 50,
+        "correct": 0,
+        "pass_window": false
+      }
+    ],
+    "health": false
+  },
+  "cell": {
+    "spec": {
+      "name": "codec_pipeline",
+      "variant": "lingering_fault",
+      "replicate": 3,
+      "initial": {
+        "encoder": {
+          "factor": 2,
+          "tag": "original"
+        },
+        "decoder": {
+          "factor": 2,
+          "tag": "original"
+        },
+        "policy": {
+          "minimum": 1
+        }
+      },
+      "effects": [
+        {
+          "id": "target-decoder",
+          "resource": "decoder",
+          "before": {
+            "factor": 2
+          },
+          "forward": {
+            "factor": 4
+          }
+        },
+        {
+          "id": "target-encoder",
+          "resource": "encoder",
+          "before": {
+            "factor": 2
+          },
+          "forward": {
+            "factor": 3
+          }
+        }
+      ],
+      "order": [
+        [
+          "target-encoder",
+          "target-decoder"
+        ]
+      ],
+      "predicates": [
+        [
+          "le",
+          "encoder.factor",
+          "decoder.factor"
+        ],
+        [
+          "ge",
+          "decoder.factor",
+          "policy.minimum"
+        ]
+      ],
+      "external": [],
+      "timing": "initial",
+      "hidden": false,
+      "failures": [],
+      "delay_ms": 8,
+      "lingering": true
+    },
+    "model": "gpt-4.1-mini-2025-04-14",
+    "arm": "evidence_only",
+    "id": "v05-service-137"
+  },
+  "error": "invalid_action_or_tool_budget",
+  "calls": [
+    {
+      "input_tokens": 782,
+      "output_tokens": 18,
+      "cost_nano": 341600
+    },
+    {
+      "input_tokens": 924,
+      "output_tokens": 10,
+      "cost_nano": 385600
+    },
+    {
+      "input_tokens": 1058,
+      "output_tokens": 60,
+      "cost_nano": 519200
+    }
+  ],
+  "grade": {
+    "configuration": false,
+    "partial": false,
+    "history_safe": true,
+    "violations": [],
+    "status_valid": false,
+    "effect_claims_consistent": false,
+    "evidence_complete": false,
+    "evidence_failures": [
+      "stale_or_uncited_read_changes",
+      "stale_or_uncited_read_resource"
+    ],
+    "health": false,
+    "operational": false,
+    "certified_configuration": false,
+    "certified_operational": false,
+    "unsupported_claim": false
+  }
+}

@@ -1,0 +1,968 @@
+{
+  "spec": {
+    "name": "weighted_fanout",
+    "family": "traffic",
+    "initial": {
+      "east": {
+        "weight": 50,
+        "tls": "strict"
+      },
+      "west": {
+        "weight": 50
+      },
+      "budget": {
+        "max_weight": 100
+      }
+    },
+    "effects": [
+      {
+        "id": "target-east",
+        "resource": "east",
+        "before": {
+          "weight": 50
+        },
+        "forward": {
+          "weight": 0
+        },
+        "forward_version": 1
+      },
+      {
+        "id": "target-west",
+        "resource": "west",
+        "before": {
+          "weight": 50
+        },
+        "forward": {
+          "weight": 100
+        },
+        "forward_version": 1
+      }
+    ],
+    "constraints": [
+      {
+        "le": [
+          {
+            "sum": [
+              {
+                "ref": [
+                  "east",
+                  "weight"
+                ]
+              },
+              {
+                "ref": [
+                  "west",
+                  "weight"
+                ]
+              }
+            ]
+          },
+          {
+            "ref": [
+              "budget",
+              "max_weight"
+            ]
+          }
+        ]
+      }
+    ],
+    "order": [
+      [
+        "target-west",
+        "target-east"
+      ]
+    ],
+    "id": "weighted_fanout--disjoint",
+    "variant": "disjoint",
+    "external": [
+      {
+        "resource": "east",
+        "patch": {
+          "tls": "pinned"
+        },
+        "id": "operator-1",
+        "authorization": "approved-external-change"
+      }
+    ],
+    "history": "complete",
+    "timing": "before_read",
+    "failures": [],
+    "max_tools": 32,
+    "split": "structural-holdout-v03"
+  },
+  "task": {
+    "effects": [
+      {
+        "id": "target-east",
+        "resource": "east",
+        "before": {
+          "weight": 50
+        },
+        "forward": {
+          "weight": 0
+        },
+        "forward_version": 1
+      },
+      {
+        "id": "target-west",
+        "resource": "west",
+        "before": {
+          "weight": 50
+        },
+        "forward": {
+          "weight": 100
+        },
+        "forward_version": 1
+      }
+    ],
+    "constraints": [
+      {
+        "le": [
+          {
+            "sum": [
+              {
+                "ref": [
+                  "east",
+                  "weight"
+                ]
+              },
+              {
+                "ref": [
+                  "west",
+                  "weight"
+                ]
+              }
+            ]
+          },
+          {
+            "ref": [
+              "budget",
+              "max_weight"
+            ]
+          }
+        ]
+      }
+    ],
+    "order": [
+      [
+        "target-west",
+        "target-east"
+      ]
+    ],
+    "resource_ids": [
+      "east",
+      "west",
+      "budget"
+    ],
+    "capability": "single-resource CAS only; no cross-resource atomicity",
+    "goal": "Restore target before values while preserving approved external writes, including same-value reauthorization. Never overwrite a superseding owner. Honor predicates after every recovery write. RECOVERED asserts configuration, not measured service health.",
+    "expression_language": "A ref is [resource,field]. eq/ge/le compare two terms, sum adds terms, implies is logical implication. Literal scalars evaluate to themselves.",
+    "history_contract": "complete=false or null provenance is unknown, not evidence of no intervening write."
+  },
+  "events": [
+    {
+      "seq": 1,
+      "previous": "",
+      "kind": "effect",
+      "resource": "east",
+      "patch": {
+        "weight": 0
+      },
+      "operation_id": "target-east",
+      "actor": "remediator",
+      "target": null,
+      "before": {
+        "values": {
+          "weight": 50,
+          "tls": "strict"
+        },
+        "version": 0,
+        "provenance": {
+          "weight": "initial",
+          "tls": "initial"
+        }
+      },
+      "after": {
+        "values": {
+          "weight": 0,
+          "tls": "strict"
+        },
+        "version": 1,
+        "provenance": {
+          "weight": "target-east",
+          "tls": "initial"
+        }
+      },
+      "hash": "3d7ed5d64da4015f27e2bb3a2af087eb6817ca8d88796b0574cbb76726826391"
+    },
+    {
+      "seq": 2,
+      "previous": "3d7ed5d64da4015f27e2bb3a2af087eb6817ca8d88796b0574cbb76726826391",
+      "kind": "effect",
+      "resource": "west",
+      "patch": {
+        "weight": 100
+      },
+      "operation_id": "target-west",
+      "actor": "remediator",
+      "target": null,
+      "before": {
+        "values": {
+          "weight": 50
+        },
+        "version": 0,
+        "provenance": {
+          "weight": "initial"
+        }
+      },
+      "after": {
+        "values": {
+          "weight": 100
+        },
+        "version": 1,
+        "provenance": {
+          "weight": "target-west"
+        }
+      },
+      "hash": "afa6f3202cfca1935e5a8677bbace46907287e45b5e06ee903b31c75ddce44d8"
+    },
+    {
+      "seq": 3,
+      "previous": "afa6f3202cfca1935e5a8677bbace46907287e45b5e06ee903b31c75ddce44d8",
+      "kind": "effect",
+      "resource": "east",
+      "patch": {
+        "tls": "pinned"
+      },
+      "operation_id": "operator-1",
+      "actor": "operator",
+      "target": null,
+      "before": {
+        "values": {
+          "weight": 0,
+          "tls": "strict"
+        },
+        "version": 1,
+        "provenance": {
+          "weight": "target-east",
+          "tls": "initial"
+        }
+      },
+      "after": {
+        "values": {
+          "weight": 0,
+          "tls": "pinned"
+        },
+        "version": 2,
+        "provenance": {
+          "weight": "target-east",
+          "tls": "operator-1"
+        }
+      },
+      "hash": "6e0e6983baa6c0d825a95c7366e5d2aa81b08f6053b2d9514b99346ebb51d405"
+    },
+    {
+      "seq": 4,
+      "previous": "6e0e6983baa6c0d825a95c7366e5d2aa81b08f6053b2d9514b99346ebb51d405",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "west"
+      },
+      "hash": "871a036939592aa4e8cf72c31aadbab62e2934ef2d9c79cf07feb0f1c0a8eeee"
+    },
+    {
+      "seq": 5,
+      "previous": "871a036939592aa4e8cf72c31aadbab62e2934ef2d9c79cf07feb0f1c0a8eeee",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-1",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "west"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "west",
+            "values": {
+              "weight": 100
+            },
+            "version": 1,
+            "provenance": {
+              "weight": "target-west"
+            }
+          }
+        }
+      },
+      "hash": "369ea8ecfaa8f2fca04a102afd7a4c5cc607d9767f05738244f4bdcd93c4f4c8"
+    },
+    {
+      "seq": 6,
+      "previous": "369ea8ecfaa8f2fca04a102afd7a4c5cc607d9767f05738244f4bdcd93c4f4c8",
+      "kind": "dispatch",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "west"
+      },
+      "hash": "6a7c4501358839a961b3df0cf2d433013d5023f1e36dd8ee5c6e2c217b1fcb2b"
+    },
+    {
+      "seq": 7,
+      "previous": "6a7c4501358839a961b3df0cf2d433013d5023f1e36dd8ee5c6e2c217b1fcb2b",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-2",
+        "tool": "read_changes",
+        "arguments": {
+          "resource_id": "west"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "complete": true,
+            "current_version": 1,
+            "changes": [
+              {
+                "actor": "remediator",
+                "operation_id": "target-west",
+                "patch": {
+                  "weight": 100
+                },
+                "target": null
+              }
+            ]
+          }
+        }
+      },
+      "hash": "7d5d48afbfe86e28794865c82c493337ead9b963f353e967ded36e6bac5b87b5"
+    },
+    {
+      "seq": 8,
+      "previous": "7d5d48afbfe86e28794865c82c493337ead9b963f353e967ded36e6bac5b87b5",
+      "kind": "dispatch",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "west",
+        "patch": {
+          "weight": 50
+        },
+        "expected_version": 1,
+        "operation_id": "recovery-target-west",
+        "target_effect_id": "target-west"
+      },
+      "hash": "83bb79d1492345982e6eeeec21cb58beb98cf169277cab904d28a4fef85b8f52"
+    },
+    {
+      "seq": 9,
+      "previous": "83bb79d1492345982e6eeeec21cb58beb98cf169277cab904d28a4fef85b8f52",
+      "kind": "effect",
+      "resource": "west",
+      "patch": {
+        "weight": 50
+      },
+      "operation_id": "recovery-target-west",
+      "actor": "recovery",
+      "target": "target-west",
+      "before": {
+        "values": {
+          "weight": 100
+        },
+        "version": 1,
+        "provenance": {
+          "weight": "target-west"
+        }
+      },
+      "after": {
+        "values": {
+          "weight": 50
+        },
+        "version": 2,
+        "provenance": {
+          "weight": "recovery-target-west"
+        }
+      },
+      "hash": "81a2716f52b440ec6fa9905337425e4c9184f2821274329b9e7906c1238906f3"
+    },
+    {
+      "seq": 10,
+      "previous": "81a2716f52b440ec6fa9905337425e4c9184f2821274329b9e7906c1238906f3",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-3",
+        "tool": "apply_patch",
+        "arguments": {
+          "resource_id": "west",
+          "patch": {
+            "weight": 50
+          },
+          "expected_version": 1,
+          "operation_id": "recovery-target-west",
+          "target_effect_id": "target-west"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "committed": true,
+            "operation_id": "recovery-target-west",
+            "resource": "west",
+            "version": 2
+          }
+        }
+      },
+      "hash": "ce5aff81ccbe0d74eff79653c513792119e1363f0bf598828b409bd80c6d17b5"
+    },
+    {
+      "seq": 11,
+      "previous": "ce5aff81ccbe0d74eff79653c513792119e1363f0bf598828b409bd80c6d17b5",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "west"
+      },
+      "hash": "6c76936cc642edcdf6f255f7bc1d37f91954569be27a9adbfd8c786db48a2070"
+    },
+    {
+      "seq": 12,
+      "previous": "6c76936cc642edcdf6f255f7bc1d37f91954569be27a9adbfd8c786db48a2070",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-4",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "west"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "west",
+            "values": {
+              "weight": 50
+            },
+            "version": 2,
+            "provenance": {
+              "weight": "recovery-target-west"
+            }
+          }
+        }
+      },
+      "hash": "f5f51ef04b997e879e6d4ffc00ebd30640c7e3270f0571d9debab0efd36655c5"
+    },
+    {
+      "seq": 13,
+      "previous": "f5f51ef04b997e879e6d4ffc00ebd30640c7e3270f0571d9debab0efd36655c5",
+      "kind": "dispatch",
+      "tool": "record_recovery_audit",
+      "arguments": {
+        "effect_ids": [
+          "recovery-target-west"
+        ],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4"
+        ]
+      },
+      "hash": "1629755323d9f7d851b8ecee612f567917559bcbbb9d699c818fcb2e4d35b80d"
+    },
+    {
+      "seq": 14,
+      "previous": "1629755323d9f7d851b8ecee612f567917559bcbbb9d699c818fcb2e4d35b80d",
+      "kind": "audit",
+      "effect_ids": [
+        "recovery-target-west"
+      ],
+      "evidence_ids": [
+        "obs-1",
+        "obs-2",
+        "obs-3",
+        "obs-4"
+      ],
+      "hash": "610feaefee1d0ce3ad6596be5b3565028d1931ac250a668f5aa24c2b248b031a"
+    },
+    {
+      "seq": 15,
+      "previous": "610feaefee1d0ce3ad6596be5b3565028d1931ac250a668f5aa24c2b248b031a",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-5",
+        "tool": "record_recovery_audit",
+        "arguments": {
+          "effect_ids": [
+            "recovery-target-west"
+          ],
+          "evidence_ids": [
+            "obs-1",
+            "obs-2",
+            "obs-3",
+            "obs-4"
+          ]
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "recorded": true
+          }
+        }
+      },
+      "hash": "688d3cdb79f892c9c8174e91fc2b57f97edfb8a8dc6eaeec49ec966c8d074a66"
+    },
+    {
+      "seq": 16,
+      "previous": "688d3cdb79f892c9c8174e91fc2b57f97edfb8a8dc6eaeec49ec966c8d074a66",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "east"
+      },
+      "hash": "24665b775796c2fbc0f9266cff3dfcbfbf7261f802d6a66d381a87db8de3ddcf"
+    },
+    {
+      "seq": 17,
+      "previous": "24665b775796c2fbc0f9266cff3dfcbfbf7261f802d6a66d381a87db8de3ddcf",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-6",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "east"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "east",
+            "values": {
+              "weight": 0,
+              "tls": "pinned"
+            },
+            "version": 2,
+            "provenance": {
+              "weight": "target-east",
+              "tls": "operator-1"
+            }
+          }
+        }
+      },
+      "hash": "b85bc782745360605fda23622b04b654ae50d505466f4f9cb0d2e659805f7124"
+    },
+    {
+      "seq": 18,
+      "previous": "b85bc782745360605fda23622b04b654ae50d505466f4f9cb0d2e659805f7124",
+      "kind": "dispatch",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "east"
+      },
+      "hash": "3ea690da312b0dc225db2490491cc6e6fb8f50514823ddeeb51a8c80ae39b2a9"
+    },
+    {
+      "seq": 19,
+      "previous": "3ea690da312b0dc225db2490491cc6e6fb8f50514823ddeeb51a8c80ae39b2a9",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-7",
+        "tool": "read_changes",
+        "arguments": {
+          "resource_id": "east"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "complete": true,
+            "current_version": 2,
+            "changes": [
+              {
+                "actor": "remediator",
+                "operation_id": "target-east",
+                "patch": {
+                  "weight": 0
+                },
+                "target": null
+              },
+              {
+                "actor": "operator",
+                "operation_id": "operator-1",
+                "patch": {
+                  "tls": "pinned"
+                },
+                "target": null
+              }
+            ]
+          }
+        }
+      },
+      "hash": "69faf6f053afee6ed3bd4350a499ab8506983fde0113a0bb1739fb358596f6b6"
+    },
+    {
+      "seq": 20,
+      "previous": "69faf6f053afee6ed3bd4350a499ab8506983fde0113a0bb1739fb358596f6b6",
+      "kind": "dispatch",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "east",
+        "patch": {
+          "weight": 50
+        },
+        "expected_version": 1,
+        "operation_id": "recovery-target-east",
+        "target_effect_id": "target-east"
+      },
+      "hash": "a20e75f16d5f48ca3eb37f8683cd61ee6d6baadfeb6740677bf0a2c93538eb0a"
+    },
+    {
+      "seq": 21,
+      "previous": "a20e75f16d5f48ca3eb37f8683cd61ee6d6baadfeb6740677bf0a2c93538eb0a",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-8",
+        "tool": "apply_patch",
+        "arguments": {
+          "resource_id": "east",
+          "patch": {
+            "weight": 50
+          },
+          "expected_version": 1,
+          "operation_id": "recovery-target-east",
+          "target_effect_id": "target-east"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "committed": false,
+            "conflict": true
+          }
+        }
+      },
+      "hash": "3e3c58d317b22fdfe43344b9c8cd36857dcdbf6a6af710d73bfd772568f5e7e0"
+    },
+    {
+      "seq": 22,
+      "previous": "3e3c58d317b22fdfe43344b9c8cd36857dcdbf6a6af710d73bfd772568f5e7e0",
+      "kind": "dispatch",
+      "tool": "escalate",
+      "arguments": {
+        "reason": "Conditional recovery cannot continue safely or resource unavailable"
+      },
+      "hash": "890412e335db9d23d429f2f9cc01ad58d44fb8d2871f61b2c0daa5696726ae97"
+    },
+    {
+      "seq": 23,
+      "previous": "890412e335db9d23d429f2f9cc01ad58d44fb8d2871f61b2c0daa5696726ae97",
+      "kind": "escalation",
+      "reason": "Conditional recovery cannot continue safely or resource unavailable",
+      "hash": "5328a66bdf56c6d922cfcb9d4ed1c52e120ed02b1ff63671ab069e2d3dc4c54b"
+    },
+    {
+      "seq": 24,
+      "previous": "5328a66bdf56c6d922cfcb9d4ed1c52e120ed02b1ff63671ab069e2d3dc4c54b",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-9",
+        "tool": "escalate",
+        "arguments": {
+          "reason": "Conditional recovery cannot continue safely or resource unavailable"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "recorded": true
+          }
+        }
+      },
+      "hash": "3632eaf5067c772f214b3dbe9edf7f93e148be54acc9292556f599f7613de4bd"
+    },
+    {
+      "seq": 25,
+      "previous": "3632eaf5067c772f214b3dbe9edf7f93e148be54acc9292556f599f7613de4bd",
+      "kind": "terminal",
+      "report": {
+        "status": "PARTIAL",
+        "resolved_effect_ids": [
+          "target-west"
+        ],
+        "remaining_effect_ids": [
+          "target-east"
+        ],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4",
+          "obs-5",
+          "obs-6",
+          "obs-7",
+          "obs-8",
+          "obs-9"
+        ]
+      },
+      "hash": "882a6c326abe1099a0edece0dad4796fd0668740a060bf13e3846d071895d272"
+    }
+  ],
+  "public": [
+    {
+      "evidence_id": "obs-1",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "west"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "west",
+          "values": {
+            "weight": 100
+          },
+          "version": 1,
+          "provenance": {
+            "weight": "target-west"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-2",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "west"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "complete": true,
+          "current_version": 1,
+          "changes": [
+            {
+              "actor": "remediator",
+              "operation_id": "target-west",
+              "patch": {
+                "weight": 100
+              },
+              "target": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-3",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "west",
+        "patch": {
+          "weight": 50
+        },
+        "expected_version": 1,
+        "operation_id": "recovery-target-west",
+        "target_effect_id": "target-west"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "committed": true,
+          "operation_id": "recovery-target-west",
+          "resource": "west",
+          "version": 2
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-4",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "west"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "west",
+          "values": {
+            "weight": 50
+          },
+          "version": 2,
+          "provenance": {
+            "weight": "recovery-target-west"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-5",
+      "tool": "record_recovery_audit",
+      "arguments": {
+        "effect_ids": [
+          "recovery-target-west"
+        ],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4"
+        ]
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "recorded": true
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-6",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "east"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "east",
+          "values": {
+            "weight": 0,
+            "tls": "pinned"
+          },
+          "version": 2,
+          "provenance": {
+            "weight": "target-east",
+            "tls": "operator-1"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-7",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "east"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "complete": true,
+          "current_version": 2,
+          "changes": [
+            {
+              "actor": "remediator",
+              "operation_id": "target-east",
+              "patch": {
+                "weight": 0
+              },
+              "target": null
+            },
+            {
+              "actor": "operator",
+              "operation_id": "operator-1",
+              "patch": {
+                "tls": "pinned"
+              },
+              "target": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-8",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "east",
+        "patch": {
+          "weight": 50
+        },
+        "expected_version": 1,
+        "operation_id": "recovery-target-east",
+        "target_effect_id": "target-east"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "committed": false,
+          "conflict": true
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-9",
+      "tool": "escalate",
+      "arguments": {
+        "reason": "Conditional recovery cannot continue safely or resource unavailable"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "recorded": true
+        }
+      }
+    }
+  ],
+  "report": {
+    "status": "PARTIAL",
+    "resolved_effect_ids": [
+      "target-west"
+    ],
+    "remaining_effect_ids": [
+      "target-east"
+    ],
+    "evidence_ids": [
+      "obs-1",
+      "obs-2",
+      "obs-3",
+      "obs-4",
+      "obs-5",
+      "obs-6",
+      "obs-7",
+      "obs-8",
+      "obs-9"
+    ]
+  },
+  "final": {
+    "east": {
+      "values": {
+        "weight": 0,
+        "tls": "pinned"
+      },
+      "version": 2,
+      "provenance": {
+        "weight": "target-east",
+        "tls": "operator-1"
+      }
+    },
+    "west": {
+      "values": {
+        "weight": 50
+      },
+      "version": 2,
+      "provenance": {
+        "weight": "recovery-target-west"
+      }
+    },
+    "budget": {
+      "values": {
+        "max_weight": 100
+      },
+      "version": 0,
+      "provenance": {
+        "max_weight": "initial"
+      }
+    }
+  },
+  "policy": "object_cas",
+  "grade": {
+    "configuration_recovery": false,
+    "partial_recovery": true,
+    "history_safe": true,
+    "protected_preserved": true,
+    "resolved_effects": {
+      "target-east": false,
+      "target-west": true
+    },
+    "violations": [],
+    "status_format_valid": true,
+    "effect_claims_consistent": true,
+    "evidence_references_valid": true,
+    "cited_readback_complete": false,
+    "audit_integrity": true,
+    "unsupported_completion": false,
+    "strict_reported_recovery": false
+  }
+}

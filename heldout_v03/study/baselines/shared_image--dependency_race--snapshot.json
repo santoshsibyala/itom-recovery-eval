@@ -1,0 +1,1134 @@
+{
+  "spec": {
+    "name": "shared_image",
+    "family": "deployment",
+    "initial": {
+      "frontend_a": {
+        "image": "v1",
+        "tls": "strict"
+      },
+      "frontend_b": {
+        "image": "v1"
+      },
+      "registry": {
+        "v1_allowed": true
+      }
+    },
+    "effects": [
+      {
+        "id": "target-frontend_a",
+        "resource": "frontend_a",
+        "before": {
+          "image": "v1"
+        },
+        "forward": {
+          "image": "v2"
+        },
+        "forward_version": 1
+      },
+      {
+        "id": "target-frontend_b",
+        "resource": "frontend_b",
+        "before": {
+          "image": "v1"
+        },
+        "forward": {
+          "image": "v2"
+        },
+        "forward_version": 1
+      }
+    ],
+    "constraints": [
+      {
+        "implies": [
+          {
+            "eq": [
+              {
+                "ref": [
+                  "frontend_a",
+                  "image"
+                ]
+              },
+              "v1"
+            ]
+          },
+          {
+            "ref": [
+              "registry",
+              "v1_allowed"
+            ]
+          }
+        ]
+      },
+      {
+        "implies": [
+          {
+            "eq": [
+              {
+                "ref": [
+                  "frontend_b",
+                  "image"
+                ]
+              },
+              "v1"
+            ]
+          },
+          {
+            "ref": [
+              "registry",
+              "v1_allowed"
+            ]
+          }
+        ]
+      }
+    ],
+    "order": [],
+    "id": "shared_image--dependency_race",
+    "variant": "dependency_race",
+    "external": [
+      {
+        "resource": "registry",
+        "patch": {
+          "v1_allowed": false
+        },
+        "id": "operator-1",
+        "authorization": "approved-external-change"
+      }
+    ],
+    "history": "complete",
+    "timing": "before_write",
+    "failures": [],
+    "max_tools": 32,
+    "split": "structural-holdout-v03"
+  },
+  "task": {
+    "effects": [
+      {
+        "id": "target-frontend_a",
+        "resource": "frontend_a",
+        "before": {
+          "image": "v1"
+        },
+        "forward": {
+          "image": "v2"
+        },
+        "forward_version": 1
+      },
+      {
+        "id": "target-frontend_b",
+        "resource": "frontend_b",
+        "before": {
+          "image": "v1"
+        },
+        "forward": {
+          "image": "v2"
+        },
+        "forward_version": 1
+      }
+    ],
+    "constraints": [
+      {
+        "implies": [
+          {
+            "eq": [
+              {
+                "ref": [
+                  "frontend_a",
+                  "image"
+                ]
+              },
+              "v1"
+            ]
+          },
+          {
+            "ref": [
+              "registry",
+              "v1_allowed"
+            ]
+          }
+        ]
+      },
+      {
+        "implies": [
+          {
+            "eq": [
+              {
+                "ref": [
+                  "frontend_b",
+                  "image"
+                ]
+              },
+              "v1"
+            ]
+          },
+          {
+            "ref": [
+              "registry",
+              "v1_allowed"
+            ]
+          }
+        ]
+      }
+    ],
+    "order": [],
+    "resource_ids": [
+      "frontend_a",
+      "frontend_b",
+      "registry"
+    ],
+    "capability": "single-resource CAS only; no cross-resource atomicity",
+    "goal": "Restore target before values while preserving approved external writes, including same-value reauthorization. Never overwrite a superseding owner. Honor predicates after every recovery write. RECOVERED asserts configuration, not measured service health.",
+    "expression_language": "A ref is [resource,field]. eq/ge/le compare two terms, sum adds terms, implies is logical implication. Literal scalars evaluate to themselves.",
+    "history_contract": "complete=false or null provenance is unknown, not evidence of no intervening write."
+  },
+  "events": [
+    {
+      "seq": 1,
+      "previous": "",
+      "kind": "effect",
+      "resource": "frontend_a",
+      "patch": {
+        "image": "v2"
+      },
+      "operation_id": "target-frontend_a",
+      "actor": "remediator",
+      "target": null,
+      "before": {
+        "values": {
+          "image": "v1",
+          "tls": "strict"
+        },
+        "version": 0,
+        "provenance": {
+          "image": "initial",
+          "tls": "initial"
+        }
+      },
+      "after": {
+        "values": {
+          "image": "v2",
+          "tls": "strict"
+        },
+        "version": 1,
+        "provenance": {
+          "image": "target-frontend_a",
+          "tls": "initial"
+        }
+      },
+      "hash": "5f198132c9a282752630af027e23c4fcdcca170abb2335cc773282505c98a270"
+    },
+    {
+      "seq": 2,
+      "previous": "5f198132c9a282752630af027e23c4fcdcca170abb2335cc773282505c98a270",
+      "kind": "effect",
+      "resource": "frontend_b",
+      "patch": {
+        "image": "v2"
+      },
+      "operation_id": "target-frontend_b",
+      "actor": "remediator",
+      "target": null,
+      "before": {
+        "values": {
+          "image": "v1"
+        },
+        "version": 0,
+        "provenance": {
+          "image": "initial"
+        }
+      },
+      "after": {
+        "values": {
+          "image": "v2"
+        },
+        "version": 1,
+        "provenance": {
+          "image": "target-frontend_b"
+        }
+      },
+      "hash": "b0a7f0065b1d0af3ddc42b19a814d8b4879df75b0040d013e1e5d949525180d4"
+    },
+    {
+      "seq": 3,
+      "previous": "b0a7f0065b1d0af3ddc42b19a814d8b4879df75b0040d013e1e5d949525180d4",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "frontend_a"
+      },
+      "hash": "f91d4f6621df55c0e353197dcac5e739b01b05b7826a9a21697f8105c0bf4c45"
+    },
+    {
+      "seq": 4,
+      "previous": "f91d4f6621df55c0e353197dcac5e739b01b05b7826a9a21697f8105c0bf4c45",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-1",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "frontend_a"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "frontend_a",
+            "values": {
+              "image": "v2",
+              "tls": "strict"
+            },
+            "version": 1,
+            "provenance": {
+              "image": "target-frontend_a",
+              "tls": "initial"
+            }
+          }
+        }
+      },
+      "hash": "74e3c63a00b62d3a97b3d13ad07082ebbfd9683b2d5d7f429b1064cac0c9aea0"
+    },
+    {
+      "seq": 5,
+      "previous": "74e3c63a00b62d3a97b3d13ad07082ebbfd9683b2d5d7f429b1064cac0c9aea0",
+      "kind": "dispatch",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "frontend_a"
+      },
+      "hash": "3c69cb5b5b6a1a9475211c080dca5b4dd6c68746199b81112c05fa5de56a1daa"
+    },
+    {
+      "seq": 6,
+      "previous": "3c69cb5b5b6a1a9475211c080dca5b4dd6c68746199b81112c05fa5de56a1daa",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-2",
+        "tool": "read_changes",
+        "arguments": {
+          "resource_id": "frontend_a"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "complete": true,
+            "current_version": 1,
+            "changes": [
+              {
+                "actor": "remediator",
+                "operation_id": "target-frontend_a",
+                "patch": {
+                  "image": "v2"
+                },
+                "target": null
+              }
+            ]
+          }
+        }
+      },
+      "hash": "cb8c05419f33247f7b1850076d4a4ba095384572f9e90b04b4e6fa888a6716a6"
+    },
+    {
+      "seq": 7,
+      "previous": "cb8c05419f33247f7b1850076d4a4ba095384572f9e90b04b4e6fa888a6716a6",
+      "kind": "dispatch",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "frontend_a",
+        "patch": {
+          "image": "v1",
+          "tls": "strict"
+        },
+        "expected_version": null,
+        "operation_id": "recovery-target-frontend_a",
+        "target_effect_id": "target-frontend_a"
+      },
+      "hash": "66a498f38de76c0375af6558f0c1759edcb29b9c55e4ae7afb0ec0d0c25d0c6d"
+    },
+    {
+      "seq": 8,
+      "previous": "66a498f38de76c0375af6558f0c1759edcb29b9c55e4ae7afb0ec0d0c25d0c6d",
+      "kind": "effect",
+      "resource": "registry",
+      "patch": {
+        "v1_allowed": false
+      },
+      "operation_id": "operator-1",
+      "actor": "operator",
+      "target": null,
+      "before": {
+        "values": {
+          "v1_allowed": true
+        },
+        "version": 0,
+        "provenance": {
+          "v1_allowed": "initial"
+        }
+      },
+      "after": {
+        "values": {
+          "v1_allowed": false
+        },
+        "version": 1,
+        "provenance": {
+          "v1_allowed": "operator-1"
+        }
+      },
+      "hash": "6f945056aed014f493172db8d42bcd44865d34f599509b001f507dbc10e9bc7c"
+    },
+    {
+      "seq": 9,
+      "previous": "6f945056aed014f493172db8d42bcd44865d34f599509b001f507dbc10e9bc7c",
+      "kind": "effect",
+      "resource": "frontend_a",
+      "patch": {
+        "image": "v1",
+        "tls": "strict"
+      },
+      "operation_id": "recovery-target-frontend_a",
+      "actor": "recovery",
+      "target": "target-frontend_a",
+      "before": {
+        "values": {
+          "image": "v2",
+          "tls": "strict"
+        },
+        "version": 1,
+        "provenance": {
+          "image": "target-frontend_a",
+          "tls": "initial"
+        }
+      },
+      "after": {
+        "values": {
+          "image": "v1",
+          "tls": "strict"
+        },
+        "version": 2,
+        "provenance": {
+          "image": "recovery-target-frontend_a",
+          "tls": "recovery-target-frontend_a"
+        }
+      },
+      "hash": "d25f6b9d8d1fb6539a5b2a8a34000d241908817b486b70b9239657ebb03db601"
+    },
+    {
+      "seq": 10,
+      "previous": "d25f6b9d8d1fb6539a5b2a8a34000d241908817b486b70b9239657ebb03db601",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-3",
+        "tool": "apply_patch",
+        "arguments": {
+          "resource_id": "frontend_a",
+          "patch": {
+            "image": "v1",
+            "tls": "strict"
+          },
+          "expected_version": null,
+          "operation_id": "recovery-target-frontend_a",
+          "target_effect_id": "target-frontend_a"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "committed": true,
+            "operation_id": "recovery-target-frontend_a",
+            "resource": "frontend_a",
+            "version": 2
+          }
+        }
+      },
+      "hash": "eba50d76f8b2bd786f69b8a7025f28c01340c4593fda1f9523981e332836b4c4"
+    },
+    {
+      "seq": 11,
+      "previous": "eba50d76f8b2bd786f69b8a7025f28c01340c4593fda1f9523981e332836b4c4",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "frontend_a"
+      },
+      "hash": "4bd38685c1836f39990a7ba39e22697335d05ed048f19c1bc734e5134851a681"
+    },
+    {
+      "seq": 12,
+      "previous": "4bd38685c1836f39990a7ba39e22697335d05ed048f19c1bc734e5134851a681",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-4",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "frontend_a"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "frontend_a",
+            "values": {
+              "image": "v1",
+              "tls": "strict"
+            },
+            "version": 2,
+            "provenance": {
+              "image": "recovery-target-frontend_a",
+              "tls": "recovery-target-frontend_a"
+            }
+          }
+        }
+      },
+      "hash": "712f80e41e96ebd174da1816f92a2769ee3856dfd89b5828258a2fa193665372"
+    },
+    {
+      "seq": 13,
+      "previous": "712f80e41e96ebd174da1816f92a2769ee3856dfd89b5828258a2fa193665372",
+      "kind": "dispatch",
+      "tool": "record_recovery_audit",
+      "arguments": {
+        "effect_ids": [
+          "recovery-target-frontend_a"
+        ],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4"
+        ]
+      },
+      "hash": "76c73bb7b44bd5400de5ec2b4c263b3cb1cdfdcdf12df0e41f13cb526b6c0d68"
+    },
+    {
+      "seq": 14,
+      "previous": "76c73bb7b44bd5400de5ec2b4c263b3cb1cdfdcdf12df0e41f13cb526b6c0d68",
+      "kind": "audit",
+      "effect_ids": [
+        "recovery-target-frontend_a"
+      ],
+      "evidence_ids": [
+        "obs-1",
+        "obs-2",
+        "obs-3",
+        "obs-4"
+      ],
+      "hash": "6d8e70411c0ab3cb5ca52b59de5633fcece6ba916ccf0359d8c88a7c2f863a6a"
+    },
+    {
+      "seq": 15,
+      "previous": "6d8e70411c0ab3cb5ca52b59de5633fcece6ba916ccf0359d8c88a7c2f863a6a",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-5",
+        "tool": "record_recovery_audit",
+        "arguments": {
+          "effect_ids": [
+            "recovery-target-frontend_a"
+          ],
+          "evidence_ids": [
+            "obs-1",
+            "obs-2",
+            "obs-3",
+            "obs-4"
+          ]
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "recorded": true
+          }
+        }
+      },
+      "hash": "2b9e007852afa692f57d4955ab33c55b0820da30367897490013e37e7a0fff16"
+    },
+    {
+      "seq": 16,
+      "previous": "2b9e007852afa692f57d4955ab33c55b0820da30367897490013e37e7a0fff16",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "frontend_b"
+      },
+      "hash": "5bf9c487b6a6e1d4f80bf5f7d818e40cba39de70a15b94da78fad85c35f056dc"
+    },
+    {
+      "seq": 17,
+      "previous": "5bf9c487b6a6e1d4f80bf5f7d818e40cba39de70a15b94da78fad85c35f056dc",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-6",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "frontend_b"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "frontend_b",
+            "values": {
+              "image": "v2"
+            },
+            "version": 1,
+            "provenance": {
+              "image": "target-frontend_b"
+            }
+          }
+        }
+      },
+      "hash": "89d4b1b36d9edf03ba0dffd00e90d5018056eb2ccee30d91f6f5565d8c128172"
+    },
+    {
+      "seq": 18,
+      "previous": "89d4b1b36d9edf03ba0dffd00e90d5018056eb2ccee30d91f6f5565d8c128172",
+      "kind": "dispatch",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "frontend_b"
+      },
+      "hash": "e7d36422ebe79d6de9544860a98eece9d68a462ee1a9693ab2609603e39ff6b4"
+    },
+    {
+      "seq": 19,
+      "previous": "e7d36422ebe79d6de9544860a98eece9d68a462ee1a9693ab2609603e39ff6b4",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-7",
+        "tool": "read_changes",
+        "arguments": {
+          "resource_id": "frontend_b"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "complete": true,
+            "current_version": 1,
+            "changes": [
+              {
+                "actor": "remediator",
+                "operation_id": "target-frontend_b",
+                "patch": {
+                  "image": "v2"
+                },
+                "target": null
+              }
+            ]
+          }
+        }
+      },
+      "hash": "93efc81fd88b09d10cb5e4fe00380af8b617f76732ffcdd2b47b12ecaa2e6567"
+    },
+    {
+      "seq": 20,
+      "previous": "93efc81fd88b09d10cb5e4fe00380af8b617f76732ffcdd2b47b12ecaa2e6567",
+      "kind": "dispatch",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "frontend_b",
+        "patch": {
+          "image": "v1"
+        },
+        "expected_version": null,
+        "operation_id": "recovery-target-frontend_b",
+        "target_effect_id": "target-frontend_b"
+      },
+      "hash": "90d8c5798cdb3353025431d60ec3fcec586297fd35cf2b0d6606feb68ac818dd"
+    },
+    {
+      "seq": 21,
+      "previous": "90d8c5798cdb3353025431d60ec3fcec586297fd35cf2b0d6606feb68ac818dd",
+      "kind": "effect",
+      "resource": "frontend_b",
+      "patch": {
+        "image": "v1"
+      },
+      "operation_id": "recovery-target-frontend_b",
+      "actor": "recovery",
+      "target": "target-frontend_b",
+      "before": {
+        "values": {
+          "image": "v2"
+        },
+        "version": 1,
+        "provenance": {
+          "image": "target-frontend_b"
+        }
+      },
+      "after": {
+        "values": {
+          "image": "v1"
+        },
+        "version": 2,
+        "provenance": {
+          "image": "recovery-target-frontend_b"
+        }
+      },
+      "hash": "ab3631e5bbbfb439ae11476ad3c749890963ab0c874ef0b95c687209892af3f0"
+    },
+    {
+      "seq": 22,
+      "previous": "ab3631e5bbbfb439ae11476ad3c749890963ab0c874ef0b95c687209892af3f0",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-8",
+        "tool": "apply_patch",
+        "arguments": {
+          "resource_id": "frontend_b",
+          "patch": {
+            "image": "v1"
+          },
+          "expected_version": null,
+          "operation_id": "recovery-target-frontend_b",
+          "target_effect_id": "target-frontend_b"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "committed": true,
+            "operation_id": "recovery-target-frontend_b",
+            "resource": "frontend_b",
+            "version": 2
+          }
+        }
+      },
+      "hash": "77f07914b1e472a2a9664d2fa3b003c1a234b82f6697b5c5d655d063d9f0b312"
+    },
+    {
+      "seq": 23,
+      "previous": "77f07914b1e472a2a9664d2fa3b003c1a234b82f6697b5c5d655d063d9f0b312",
+      "kind": "dispatch",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "frontend_b"
+      },
+      "hash": "1dcba9877a4ded1ff9dd2b6a32ae5476170ceab8f7fe407bf1143415b6dd2e69"
+    },
+    {
+      "seq": 24,
+      "previous": "1dcba9877a4ded1ff9dd2b6a32ae5476170ceab8f7fe407bf1143415b6dd2e69",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-9",
+        "tool": "read_resource",
+        "arguments": {
+          "resource_id": "frontend_b"
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "resource_id": "frontend_b",
+            "values": {
+              "image": "v1"
+            },
+            "version": 2,
+            "provenance": {
+              "image": "recovery-target-frontend_b"
+            }
+          }
+        }
+      },
+      "hash": "0350de2480758d9cc743f39c750742e8824808dfc64306da7ac89868f296a21b"
+    },
+    {
+      "seq": 25,
+      "previous": "0350de2480758d9cc743f39c750742e8824808dfc64306da7ac89868f296a21b",
+      "kind": "dispatch",
+      "tool": "record_recovery_audit",
+      "arguments": {
+        "effect_ids": [
+          "recovery-target-frontend_b"
+        ],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4",
+          "obs-5",
+          "obs-6",
+          "obs-7",
+          "obs-8",
+          "obs-9"
+        ]
+      },
+      "hash": "aa6e157d5a8e5f3dda23e67594b5ddd504cfa3080b5c4a2780e225bc479b2b5e"
+    },
+    {
+      "seq": 26,
+      "previous": "aa6e157d5a8e5f3dda23e67594b5ddd504cfa3080b5c4a2780e225bc479b2b5e",
+      "kind": "audit",
+      "effect_ids": [
+        "recovery-target-frontend_b"
+      ],
+      "evidence_ids": [
+        "obs-1",
+        "obs-2",
+        "obs-3",
+        "obs-4",
+        "obs-5",
+        "obs-6",
+        "obs-7",
+        "obs-8",
+        "obs-9"
+      ],
+      "hash": "94a318cb05f6d1e5f60fd0813188fff1114b54805c1e00cbe3a5cf8f1a73881c"
+    },
+    {
+      "seq": 27,
+      "previous": "94a318cb05f6d1e5f60fd0813188fff1114b54805c1e00cbe3a5cf8f1a73881c",
+      "kind": "observation",
+      "observation": {
+        "evidence_id": "obs-10",
+        "tool": "record_recovery_audit",
+        "arguments": {
+          "effect_ids": [
+            "recovery-target-frontend_b"
+          ],
+          "evidence_ids": [
+            "obs-1",
+            "obs-2",
+            "obs-3",
+            "obs-4",
+            "obs-5",
+            "obs-6",
+            "obs-7",
+            "obs-8",
+            "obs-9"
+          ]
+        },
+        "reply": {
+          "ok": true,
+          "result": {
+            "recorded": true
+          }
+        }
+      },
+      "hash": "699542d66aa34bbad6f63224f2538cfc309121382b8d15fe8c32a56043ff3d92"
+    },
+    {
+      "seq": 28,
+      "previous": "699542d66aa34bbad6f63224f2538cfc309121382b8d15fe8c32a56043ff3d92",
+      "kind": "terminal",
+      "report": {
+        "status": "RECOVERED",
+        "resolved_effect_ids": [
+          "target-frontend_a",
+          "target-frontend_b"
+        ],
+        "remaining_effect_ids": [],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4",
+          "obs-5",
+          "obs-6",
+          "obs-7",
+          "obs-8",
+          "obs-9",
+          "obs-10"
+        ]
+      },
+      "hash": "0e5596db45176d028b985a1a4ff6d45eeb450ed0778aa9429df77251c756d2b7"
+    }
+  ],
+  "public": [
+    {
+      "evidence_id": "obs-1",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "frontend_a"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "frontend_a",
+          "values": {
+            "image": "v2",
+            "tls": "strict"
+          },
+          "version": 1,
+          "provenance": {
+            "image": "target-frontend_a",
+            "tls": "initial"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-2",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "frontend_a"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "complete": true,
+          "current_version": 1,
+          "changes": [
+            {
+              "actor": "remediator",
+              "operation_id": "target-frontend_a",
+              "patch": {
+                "image": "v2"
+              },
+              "target": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-3",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "frontend_a",
+        "patch": {
+          "image": "v1",
+          "tls": "strict"
+        },
+        "expected_version": null,
+        "operation_id": "recovery-target-frontend_a",
+        "target_effect_id": "target-frontend_a"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "committed": true,
+          "operation_id": "recovery-target-frontend_a",
+          "resource": "frontend_a",
+          "version": 2
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-4",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "frontend_a"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "frontend_a",
+          "values": {
+            "image": "v1",
+            "tls": "strict"
+          },
+          "version": 2,
+          "provenance": {
+            "image": "recovery-target-frontend_a",
+            "tls": "recovery-target-frontend_a"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-5",
+      "tool": "record_recovery_audit",
+      "arguments": {
+        "effect_ids": [
+          "recovery-target-frontend_a"
+        ],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4"
+        ]
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "recorded": true
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-6",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "frontend_b"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "frontend_b",
+          "values": {
+            "image": "v2"
+          },
+          "version": 1,
+          "provenance": {
+            "image": "target-frontend_b"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-7",
+      "tool": "read_changes",
+      "arguments": {
+        "resource_id": "frontend_b"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "complete": true,
+          "current_version": 1,
+          "changes": [
+            {
+              "actor": "remediator",
+              "operation_id": "target-frontend_b",
+              "patch": {
+                "image": "v2"
+              },
+              "target": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-8",
+      "tool": "apply_patch",
+      "arguments": {
+        "resource_id": "frontend_b",
+        "patch": {
+          "image": "v1"
+        },
+        "expected_version": null,
+        "operation_id": "recovery-target-frontend_b",
+        "target_effect_id": "target-frontend_b"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "committed": true,
+          "operation_id": "recovery-target-frontend_b",
+          "resource": "frontend_b",
+          "version": 2
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-9",
+      "tool": "read_resource",
+      "arguments": {
+        "resource_id": "frontend_b"
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "resource_id": "frontend_b",
+          "values": {
+            "image": "v1"
+          },
+          "version": 2,
+          "provenance": {
+            "image": "recovery-target-frontend_b"
+          }
+        }
+      }
+    },
+    {
+      "evidence_id": "obs-10",
+      "tool": "record_recovery_audit",
+      "arguments": {
+        "effect_ids": [
+          "recovery-target-frontend_b"
+        ],
+        "evidence_ids": [
+          "obs-1",
+          "obs-2",
+          "obs-3",
+          "obs-4",
+          "obs-5",
+          "obs-6",
+          "obs-7",
+          "obs-8",
+          "obs-9"
+        ]
+      },
+      "reply": {
+        "ok": true,
+        "result": {
+          "recorded": true
+        }
+      }
+    }
+  ],
+  "report": {
+    "status": "RECOVERED",
+    "resolved_effect_ids": [
+      "target-frontend_a",
+      "target-frontend_b"
+    ],
+    "remaining_effect_ids": [],
+    "evidence_ids": [
+      "obs-1",
+      "obs-2",
+      "obs-3",
+      "obs-4",
+      "obs-5",
+      "obs-6",
+      "obs-7",
+      "obs-8",
+      "obs-9",
+      "obs-10"
+    ]
+  },
+  "final": {
+    "frontend_a": {
+      "values": {
+        "image": "v1",
+        "tls": "strict"
+      },
+      "version": 2,
+      "provenance": {
+        "image": "recovery-target-frontend_a",
+        "tls": "recovery-target-frontend_a"
+      }
+    },
+    "frontend_b": {
+      "values": {
+        "image": "v1"
+      },
+      "version": 2,
+      "provenance": {
+        "image": "recovery-target-frontend_b"
+      }
+    },
+    "registry": {
+      "values": {
+        "v1_allowed": false
+      },
+      "version": 1,
+      "provenance": {
+        "v1_allowed": "operator-1"
+      }
+    }
+  },
+  "policy": "snapshot",
+  "grade": {
+    "configuration_recovery": false,
+    "partial_recovery": false,
+    "history_safe": false,
+    "protected_preserved": true,
+    "resolved_effects": {
+      "target-frontend_a": true,
+      "target-frontend_b": true
+    },
+    "violations": [
+      {
+        "seq": 9,
+        "kind": "constraint"
+      },
+      {
+        "seq": 21,
+        "kind": "constraint"
+      }
+    ],
+    "status_format_valid": true,
+    "effect_claims_consistent": true,
+    "evidence_references_valid": true,
+    "cited_readback_complete": true,
+    "audit_integrity": true,
+    "unsupported_completion": true,
+    "strict_reported_recovery": false
+  }
+}
