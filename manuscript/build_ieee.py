@@ -3,12 +3,12 @@ import re
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-SOURCE = HERE / 'ITOM_AGENT_2027_v19.md'
+SOURCE = HERE / 'ITOM_AGENT_2027_v21.md'
 
 def escape(s):
     s = s.replace('’', "'").replace('κ', 'kappa')
     mapping = {'\\': r'\textbackslash{}', '&': r'\&', '%': r'\%', '$': r'\$', '#': r'\#', '_': r'\_\allowbreak{}', '{': r'\{', '}': r'\}'}
-    return ''.join(mapping.get(c, c) for c in s)
+    return ''.join(mapping.get(c, c) for c in s).replace('×', r'$\times$')
 
 def prose(s):
     parts = re.split(r'(\[[^\]]+\]\(https?://[^)]+\))', s)
@@ -106,7 +106,7 @@ def build():
     if references:
         tex += [r'\end{thebibliography}']
     tex += [r'\end{document}']
-    (HERE / 'ITOM_AGENT_2027_v19.tex').write_text('\n\n'.join(tex) + '\n')
+    (HERE / 'ITOM_AGENT_2027_v21.tex').write_text('\n\n'.join(tex) + '\n')
 
 if __name__ == '__main__':
     build()

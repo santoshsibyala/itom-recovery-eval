@@ -15,7 +15,7 @@ This package is a filtered copy. Original local records are unchanged. No file f
 ## Nonessential or redundant files omitted
 
 - Git history, virtual environments, downloaded tool caches, Python bytecode, symlinks, operating-system metadata, installation transcripts, console logs, runtime databases and lock files.
-- Nested ZIP/tar archives, old manuscript PDFs/TeX/drafts, layout-preview images and superseded paper-only revisions. The current v19 manuscript and vector figure are included explicitly.
+- Nested ZIP/tar archives, old manuscript PDFs/TeX/drafts, layout-preview images and superseded paper-only revisions. The current v21 manuscript and vector figure are included explicitly.
 - Historical review-building utilities, private readiness notes, old packaging/finalization scripts, and the original workspace-only manifests/checks that describe unpublished administrative deliverables. Original scientific source/protocol manifests are retained and may reference excluded private accounting or approval files; they are historical records, not complete release inventories.
 - Development-pilot outcomes and IAM materials outside the scientific cohorts selected here. The `prototype_v02/itom` utility sources required by held-out imports are retained; its live budget ledger is not.
 

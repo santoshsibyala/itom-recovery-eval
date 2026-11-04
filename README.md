@@ -1,10 +1,10 @@
-# ITOM public-release artifact v19
+# ITOM public-release artifact v21
 
 Prepared for the AGENT 2027 manuscript. Repository URL: https://github.com/santoshsibyala/itom-recovery-eval. This repository is private pending author review. It has no DOI. No package-wide redistribution license is assigned here; upstream RAC retains its included license.
 
 ## Contents
 
-- `manuscript/`: v19 PDF and editable Markdown/LaTeX, the IEEE builder and the vector-only failure diagram.
+- `manuscript/`: v21 PDF and editable Markdown/LaTeX, the IEEE builder and the vector-only failure diagram.
 - `heldout_v03/`: initial held-out and running-service source, protocol manifests, synthetic traces, provider request/response journals, baseline records and analysis outputs.
 - `followup_v05/`: stronger-evidence and atomic-runtime study, conventional controls, typed and native-function sensitivity cohorts, initial/calibration sources, source manifests, raw records and analysis outputs. Its report directory contains initial and corrected RAC integrations, frozen upstream source/license and evidence-specificity diagnostics.
 - `critical_review_v04/`: post-hoc scientific audit source and results. Private review materials are excluded.
@@ -40,4 +40,4 @@ Read `EXCLUSIONS.md` for the complete exclusion policy and withheld record class
 
 ## Manuscript version
 
-v19 includes the approved final wording fixes and the private repository URL. Scientific records remain unchanged.
+v21 includes the approved Section IX conclusion, separate Reproducibility section, multiplication signs in design counts, and the private repository URL. Scientific records remain unchanged.
