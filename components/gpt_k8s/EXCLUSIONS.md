@@ -1,0 +1,5 @@
+# Exclusions
+
+Excluded: all reviewer identities, original review returns, locks, correspondence, prior-exposure disclosures, administrative review records and blinding keys; all credential files, API keys, tokens, kubeconfigs and client private keys; cost/account SQLite databases and backups; account checks and private preflight/environment logs; Git history, virtual environments, installed tools, caches, bytecode, process locks and OS files; frozen fallback manuscript copies, prior candidate copies, standalone approval/correspondence records and existing release ZIPs.
+
+The requested scientific protocol/freeze receipts and cleanup-repair receipt are included. They contain public author attribution and historical local path references, not credential contents. The pre-main protocol receipt and original wrapper freeze are retained to explain historical hash bindings. Public aggregate cost accounting replaces the private ledger. Historical manifests are retained as historical documents; they are not assertions that excluded files are supplied.
