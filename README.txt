@@ -1,12 +1,13 @@
-ITOM v32 consolidated artifact — LICENSED RELEASE CANDIDATE
+ITOM v33 consolidated artifact — PUBLIC RELEASE
 
-Canonical manuscript: manuscript/ITOM_AGENT_2027_v32.pdf
-The v32 PDF and TeX are unchanged. This package is not published or submitted.
+Canonical manuscript: manuscript/ITOM_AGENT_2027_v33.pdf
+Public repository: https://github.com/santoshsibyala/itom-recovery-eval
+V33 changes only the availability heading and paragraph. V32 remains frozen.
 Original code uses MIT; original data/documentation uses CC BY 4.0.
 See LICENSE_SCOPE.txt for exclusions. No DOI has been assigned.
 
 ONE OFFLINE VERIFICATION COMMAND
-From the extracted ITOM_v32_artifact directory:
+From the extracted ITOM_v33_artifact directory:
 
     python3 -B verify.py
 
@@ -27,7 +28,7 @@ Offline replay is an internal consistency check, not external replication or a
 new experiment. It does not authenticate withheld human-review returns.
 
 LAYOUT
-- manuscript/: exact v32 paper, TeX, figure and existing revision evidence.
+- manuscript/: v33 paper and TeX, frozen v32 fallback, figure and revision evidence.
 - components/base/: intact v21 release, including its original manifest and
   verifier, initial/follow-up studies, corrected and original RAC cohorts,
   deterministic Kubernetes records, and aggregate human-review results.
@@ -43,7 +44,7 @@ LAYOUT
 
 HISTORICAL CONTENT
 The base component retains its old manuscript and README to preserve its manifest.
-Those are historical; manuscript/ITOM_AGENT_2027_v32.pdf is the current paper.
+Those are historical; manuscript/ITOM_AGENT_2027_v33.pdf is the current paper.
 The original component READMEs, manifests, approvals and execution code retain
 historical paths, dates, account references and authorizations. They do not grant
 permission to run new experiments. The top-level offline command uses relative
@@ -69,6 +70,5 @@ none are needed to read or verify the supplied PDF.
 
 PUBLICATION REMAINING
 Original code/data licenses are selected with third-party/manuscript exclusions.
-Finalize reviewer access and durable archiving; verify portal supplement rules.
-See EXCLUSIONS.txt and LICENSE_STATUS.txt. Any availability wording change belongs
-in a new manuscript revision, not the frozen v32.
+Public GitHub access is verified. Durable archiving and portal upload remain.
+See EXCLUSIONS.txt and LICENSE_STATUS.txt. V33 records public availability; v32 remains unchanged.
