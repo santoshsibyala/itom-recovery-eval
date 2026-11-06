@@ -1,13 +1,14 @@
-ITOM v33 consolidated artifact — PUBLIC RELEASE
+ITOM v36 consolidated artifact — PUBLIC RELEASE
 
-Canonical manuscript: manuscript/ITOM_AGENT_2027_v33.pdf
+Canonical manuscript: manuscript/ITOM_AGENT_2027_v36.pdf
 Public repository: https://github.com/santoshsibyala/itom-recovery-eval
-V33 changes only the availability heading and paragraph. V32 remains frozen.
+V36 follows v33 with repetition cuts, restored Introduction citations, and URL copy settings.
+V32 through v35 remain frozen. Scientific results and disclosures are unchanged.
 Original code uses MIT; original data/documentation uses CC BY 4.0.
 See LICENSE_SCOPE.txt for exclusions. No DOI has been assigned.
 
 ONE OFFLINE VERIFICATION COMMAND
-From the extracted ITOM_v33_artifact directory:
+From the extracted ITOM_v36_artifact directory:
 
     python3 -B verify.py
 
@@ -28,7 +29,7 @@ Offline replay is an internal consistency check, not external replication or a
 new experiment. It does not authenticate withheld human-review returns.
 
 LAYOUT
-- manuscript/: v33 paper and TeX, frozen v32 fallback, figure and revision evidence.
+- manuscript/: v36 paper and TeX, frozen v32-v35 fallbacks, figure and revision evidence.
 - components/base/: intact v21 release, including its original manifest and
   verifier, initial/follow-up studies, corrected and original RAC cohorts,
   deterministic Kubernetes records, and aggregate human-review results.
@@ -44,7 +45,7 @@ LAYOUT
 
 HISTORICAL CONTENT
 The base component retains its old manuscript and README to preserve its manifest.
-Those are historical; manuscript/ITOM_AGENT_2027_v33.pdf is the current paper.
+Those are historical; manuscript/ITOM_AGENT_2027_v36.pdf is the current paper.
 The original component READMEs, manifests, approvals and execution code retain
 historical paths, dates, account references and authorizations. They do not grant
 permission to run new experiments. The top-level offline command uses relative
@@ -71,4 +72,9 @@ none are needed to read or verify the supplied PDF.
 PUBLICATION REMAINING
 Original code/data licenses are selected with third-party/manuscript exclusions.
 Public GitHub access is verified. Durable archiving and portal upload remain.
-See EXCLUSIONS.txt and LICENSE_STATUS.txt. V33 records public availability; v32 remains unchanged.
+See EXCLUSIONS.txt and LICENSE_STATUS.txt. V36 is the current manuscript; historical manuscript versions remain unchanged.
+
+URL COPY TESTS
+All five URLs extract exactly with pdftotext. Preview paste retains a wrapping
+newline in references [1] and [2]; repository, [11], and [12] paste exactly.
+See manuscript/v36-verification/URL_TEST_REPORT.txt.
